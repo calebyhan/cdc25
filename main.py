@@ -4,39 +4,51 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from collections import Counter
 
+# Load and clean astronaut and GDP datasets
 def load_and_clean_data():
-    astronauts_df = pd.read_csv('data/Social_Science.csv')
-    gdp_df = pd.read_csv('data/Life Expectancy vs GDP 1950-2018.csv')
+    astronauts_df = pd.read_csv('data/Social_Science.csv')   # Astronaut data
+    gdp_df = pd.read_csv('data/Life Expectancy vs GDP 1950-2018.csv')  # GDP data
     
+    # Standardize country names in astronaut dataset
     astronauts_df['Profile.Nationality'] = astronauts_df['Profile.Nationality'].str.replace('U.S.S.R/Russia', 'Russia')
     astronauts_df['Profile.Nationality'] = astronauts_df['Profile.Nationality'].str.replace('U.S.', 'United States')
     
+    # Standardize country names in GDP dataset
     gdp_df['Country'] = gdp_df['Country'].str.replace('United States', 'United States')
     gdp_df['Country'] = gdp_df['Country'].str.replace('Russian Federation', 'Russia')
     
     return astronauts_df, gdp_df
 
+# Count astronauts by nationality
 def analyze_astronaut_countries(astronauts_df):
     astronaut_counts = astronauts_df['Profile.Nationality'].value_counts()
     return astronaut_counts
 
+# Get GDP data for a specific year (default = 2018)
 def get_latest_gdp_data(gdp_df, year=2018):
     latest_gdp = gdp_df[gdp_df['Year'] == year].copy()
     return latest_gdp
 
+# Merge astronaut counts with GDP data
 def merge_astronaut_gdp_data(astronaut_counts, gdp_data):
     astronaut_df = pd.DataFrame({
         'Country': astronaut_counts.index,
         'Astronaut_Count': astronaut_counts.values
     })
     
-    merged_data = pd.merge(astronaut_df, gdp_data[['Country', 'GDP per capita', 'Population (historical estimates)']], 
-                          on='Country', how='inner')
+    # Merge on country
+    merged_data = pd.merge(
+        astronaut_df, 
+        gdp_data[['Country', 'GDP per capita', 'Population (historical estimates)']], 
+        on='Country', how='inner'
+    )
     
+    # Calculate total GDP
     merged_data['Total_GDP'] = merged_data['GDP per capita'] * merged_data['Population (historical estimates)']
     
     return merged_data
 
+# Create multiple plots for visualization
 def create_visualizations(merged_data):
     plt.style.use('seaborn-v0_8')
     fig, axes = plt.subplots(2, 2, figsize=(15, 12))
@@ -48,6 +60,7 @@ def create_visualizations(merged_data):
     axes[0,0].set_xlabel('GDP per Capita (USD)')
     axes[0,0].set_ylabel('Number of Astronauts')
     
+    # Annotate points with country names
     for i, row in merged_data.iterrows():
         axes[0,0].annotate(row['Country'], (row['GDP per capita'], row['Astronaut_Count']), 
                           xytext=(5, 5), textcoords='offset points', fontsize=8)
@@ -60,6 +73,7 @@ def create_visualizations(merged_data):
     axes[0,1].set_ylabel('Number of Astronauts')
     axes[0,1].ticklabel_format(style='scientific', axis='x', scilimits=(0,0))
     
+    # Annotate points with country names
     for i, row in merged_data.iterrows():
         axes[0,1].annotate(row['Country'], (row['Total_GDP'], row['Astronaut_Count']), 
                           xytext=(5, 5), textcoords='offset points', fontsize=8)
@@ -81,11 +95,13 @@ def create_visualizations(merged_data):
     
     return correlation_matrix
 
+# Calculate correlations between astronaut count and economic indicators
 def calculate_correlations(merged_data):
     gdp_per_capita_corr = merged_data['Astronaut_Count'].corr(merged_data['GDP per capita'])
     total_gdp_corr = merged_data['Astronaut_Count'].corr(merged_data['Total_GDP'])
     population_corr = merged_data['Astronaut_Count'].corr(merged_data['Population (historical estimates)'])
     
+    # Print results
     print("Correlation Analysis:")
     print(f"Astronaut Count vs GDP per Capita: {gdp_per_capita_corr:.3f}")
     print(f"Astronaut Count vs Total GDP: {total_gdp_corr:.3f}")
@@ -97,6 +113,7 @@ def calculate_correlations(merged_data):
         'population': population_corr
     }
 
+# Main pipeline to run all steps
 def main():
     print("Loading and cleaning data...")
     astronauts_df, gdp_df = load_and_clean_data()
@@ -122,5 +139,6 @@ def main():
     
     return merged_data, correlations
 
+# Run the program
 if __name__ == "__main__":
     merged_data, correlations = main()
