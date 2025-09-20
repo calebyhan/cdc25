@@ -1,226 +1,225 @@
-# Mission Duration & Performance Analysis
+# CDC25 - Astronaut Risk Assessment System
 
 ## 🚀 Project Overview
 
-This project provides a comprehensive analysis of astronaut mission durations and EVA (Extravehicular Activity) performance patterns. It includes:
+CDC25 is a comprehensive astronaut risk assessment and mission duration prediction system built for the Carolina Data Challenge 2025. The project combines advanced machine learning with an intuitive web interface to provide real-time mission planning insights for space agencies and astronaut safety teams.
 
-1. **Optimal Mission Length Predictor**: Machine learning models to predict ideal mission durations based on astronaut characteristics
-2. **EVA Efficiency Analysis**: Statistical analysis of spacewalk performance factors
-3. **Interactive Visualizations**: Rich dashboards for mission planning insights
-4. **Predictive Tools**: Real-time mission duration prediction capabilities
+### Key Components
+1. **ML-Powered Risk Assessment**: Advanced ensemble models predict mission duration and assess astronaut risk factors
+2. **Interactive Web Dashboard**: React-based frontend for real-time predictions and data visualization
+3. **RESTful API Backend**: Flask server with integrated machine learning pipeline
+4. **Comprehensive Analytics**: Statistical analysis and visualization tools for mission planning
 
-## 📊 Key Features
+## 🎯 Features
 
-### Mission Duration Analysis
-- Predictive modeling using Random Forest and Gradient Boosting
-- Feature importance analysis (experience, age, mission type, etc.)
-- Mission clustering for performance categorization
-- Historical trend analysis across different space programs
+### Risk Assessment & Prediction
+- **Mission Duration Prediction**: Ensemble ML model (Random Forest + Gradient Boosting + Neural Network + SVR)
+- **Risk Factor Analysis**: Multi-dimensional risk scoring based on age, experience, and mission complexity
+- **Confidence Intervals**: Statistical uncertainty quantification for predictions
+- **Smart Recommendations**: Contextual mission planning suggestions
 
-### EVA Performance Insights
-- Spacewalk efficiency metrics
-- Experience correlation analysis
-- Mission type impact on EVA success
-- Time-series analysis of EVA improvements
+### Interactive Web Interface
+- **Real-time Predictions**: Submit astronaut data and get instant risk assessments
+- **Data Visualizations**: Dynamic charts showing risk distributions and mission analytics
+- **Model Status Monitoring**: Live ML model performance metrics
+- **Responsive Design**: Modern UI built with React and Chakra UI
 
-### Interactive Tools
-- Mission duration predictor
-- Performance visualization dashboard
-- Statistical insights generator
-- Real-time analysis capabilities
+### API & Backend
+- **RESTful Endpoints**: Complete API for predictions, visualizations, and system health
+- **Data Processing Pipeline**: Automated feature engineering and validation
+- **Model Management**: Dynamic model training and status monitoring
+- **Error Handling**: Robust error management and logging
 
 ## 🛠 Installation & Setup
 
 ### Prerequisites
 - Python 3.8+
+- Node.js 16+
 - Virtual environment (recommended)
 
-### Quick Start
+### Backend Setup
 ```bash
-# Clone/navigate to project directory
-cd /Users/calebhan/Documents/Coding/UNC/cdc25
+# Navigate to project directory
+cd /path/to/cdc25
 
-# Install dependencies
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install Python dependencies
 pip install -r requirements.txt
 
-# Run the demo analysis
-python mission_analysis_demo.py
-
-# Open Jupyter notebook for detailed analysis
-jupyter notebook mission_duration_analysis.ipynb
+# Start the Flask backend server
+cd src/backend
+python app.py
 ```
 
-### Dependencies
-- **Data Analysis**: pandas, numpy, scipy
-- **Machine Learning**: scikit-learn
-- **Visualization**: matplotlib, seaborn, plotly
-- **Interactive**: jupyter, ipywidgets
-- **API Integration**: requests
+### Frontend Setup
+```bash
+# Navigate to frontend directory
+cd src/frontend
+
+# Install Node.js dependencies
+npm install
+
+# Start the React development server
+npm start
+```
+
+### Quick Start
+1. **Start Backend**: Flask server runs on `http://localhost:8000`
+2. **Start Frontend**: React app runs on `http://localhost:3000`
+3. **Access Application**: Open `http://localhost:3000` in your browser
+4. **Test Predictions**: Use the risk assessment form to submit astronaut data
 
 ## 📈 Usage Examples
 
-### 1. Quick Analysis Demo
+### Web Interface
+1. **Risk Assessment**: Enter astronaut details (name, age, nationality, missions, space time)
+2. **View Predictions**: Get mission duration predictions with confidence intervals
+3. **Analyze Risk Factors**: Review detailed risk breakdowns and recommendations
+4. **Explore Data**: Access interactive visualizations and model metrics
+
+### API Integration
 ```python
-# Run the complete analysis pipeline
-python mission_analysis_demo.py
+import requests
+
+# Make a prediction request
+data = {
+    "name": "Test Astronaut",
+    "age": 42,
+    "nationality": "USA", 
+    "missions": 3,
+    "space_time": 200
+}
+
+response = requests.post("http://localhost:8000/api/predict", json=data)
+prediction = response.json()
+
+print(f"Predicted duration: {prediction['predicted_duration_hours']} hours")
+print(f"Risk level: {prediction['risk_level']}")
 ```
 
-### 2. Jupyter Notebook Analysis
-```python
-# Open interactive notebook
-jupyter notebook mission_duration_analysis.ipynb
+### Model Status Check
+```bash
+# Check ML model status
+curl http://localhost:8000/api/model/status
+
+# Get system health
+curl http://localhost:8000/api/health
+
+# Fetch visualization data
+curl http://localhost:8000/api/visualizations
 ```
 
-### 3. Custom Predictions
-```python
-from mission_analysis_demo import build_duration_predictor, load_and_clean_data
-
-# Load data and build model
-df = load_and_clean_data()
-model, features = build_duration_predictor(df)
-
-# Predict mission duration
-# Format: [age, years_experience, mission_count, is_male, is_military]
-prediction = model.predict([[40, 10, 3, 1, 1]])[0]
-print(f"Predicted duration: {prediction:.1f} hours")
-```
-
-## 📊 Data Sources
-
-### Primary Dataset
-- **File**: `data/Social_Science.csv`
-- **Records**: 1,273 astronaut missions
-- **Time Period**: 1961-2025
-- **Coverage**: Multiple space agencies (NASA, Soviet/Russian, etc.)
-
-### Key Data Fields
-- Astronaut demographics (age, gender, nationality)
-- Mission details (duration, type, role, year)
-- Experience metrics (selection year, mission count)
-- EVA performance (duration, efficiency)
-- Vehicle information (ascent, orbit, descent)
-
-## 🎯 Key Insights
-
-### Mission Duration Patterns
-- **Average Mission**: ~180 hours (7.5 days)
-- **Longest Missions**: Space station missions (400+ hours)
-- **Shortest Missions**: Early test flights (1-5 hours)
-- **Trend**: Increasing duration over time with space station development
-
-### EVA Performance
-- **EVA Rate**: ~15% of missions include spacewalks
-- **Average EVA**: 6-8 hours per spacewalk
-- **Experience Impact**: Veteran astronauts show 20% higher EVA efficiency
-- **Technology Improvement**: Modern EVAs are more efficient and safer
-
-### Predictive Factors
-1. **Mission Type** (40% importance): Space station vs. short-duration flights
-2. **Years of Experience** (25% importance): Training and adaptation effects
-3. **Age at Mission** (20% importance): Physical and cognitive factors
-4. **Mission Count** (15% importance): Individual learning curves
-
-## 🔬 Technical Implementation
+## 🔬 Technical Architecture
 
 ### Machine Learning Pipeline
-1. **Data Preprocessing**: Feature engineering, missing value handling
-2. **Model Selection**: Random Forest, Gradient Boosting, Linear Regression
-3. **Cross-Validation**: 5-fold CV with temporal splits
-4. **Performance Metrics**: R², MAE, RMSE
+- **Ensemble Model**: Stacking regressor combining Random Forest, Gradient Boosting, MLP, and SVR
+- **Feature Engineering**: Age, experience, nationality, and space time processing
+- **Risk Scoring**: Multi-factor risk assessment with interpretable outputs
+- **Model Validation**: Cross-validation with R² = 0.67 and RMSE = 70.66 hours
 
-### Statistical Analysis
-- **Correlation Analysis**: Pearson and Spearman correlations
-- **Clustering**: K-means for mission categorization
-- **Trend Analysis**: Time-series decomposition
-- **Hypothesis Testing**: Statistical significance validation
+### Backend Technology
+- **Framework**: Flask with CORS support
+- **ML Libraries**: scikit-learn, pandas, numpy
+- **Data Processing**: Automated cleaning and feature engineering
+- **API Design**: RESTful endpoints with comprehensive error handling
 
-### Visualization Framework
-- **Static Plots**: Matplotlib, Seaborn
-- **Interactive Dashboards**: Plotly, Jupyter widgets
-- **3D Visualizations**: Mission cluster analysis
-- **Time-Series**: Historical trend analysis
+### Frontend Technology
+- **Framework**: React with functional components and hooks
+- **UI Library**: Chakra UI for modern, responsive design
+- **State Management**: React hooks for local state
+- **API Integration**: Axios for HTTP requests
 
-## 🎖 Hackathon Scoring Alignment
+### Data Sources
+- **Primary Dataset**: `data/Social_Science.csv` (astronaut mission records)
+- **Synthetic Data**: Generated fallback data for demonstration
+- **Real-time Processing**: Dynamic feature extraction and encoding
 
-### Impact and Applicability (10/10)
-- **Real-world Application**: Direct relevance to current space missions
-- **Mission Planning**: Practical tool for space agencies
-- **Safety Optimization**: EVA planning reduces astronaut risk
-- **Resource Allocation**: Optimal crew selection and training
+## 🎖 Project Team
 
-### Completeness (10/10)
-- **Full Pipeline**: Data → Analysis → Prediction → Visualization
-- **Multiple Models**: Comparative analysis with best practice selection
-- **Error Handling**: Robust data cleaning and validation
-- **Documentation**: Comprehensive guides and examples
+**Team CDC25**
+- **Caleb Han** - Full-stack development, ML integration
+- **Ethan Tran** - Data analysis and model development  
+- **Erae Ko** - Frontend development and UI/UX
+- **Jeffery Liu** - Backend architecture and API design
 
-### Innovation and Creativity (10/10)
-- **Novel Approach**: First comprehensive astronaut performance predictor
-- **Multi-dimensional Analysis**: Duration + EVA + Experience correlation
-- **Interactive Tools**: Real-time prediction capabilities
-- **Advanced ML**: Ensemble methods with feature importance
+## 📊 Key API Endpoints
 
-### Visualization (10/10)
-- **Multiple Formats**: Static, interactive, and 3D visualizations
-- **Dashboard Integration**: Comprehensive performance overview
-- **Clear Communication**: Easy-to-understand insights
-- **Professional Quality**: Publication-ready graphics
+### Prediction & Analysis
+- `POST /api/predict` - Submit astronaut data for risk assessment
+- `GET /api/model/status` - Get ML model information and metrics
+- `GET /api/visualizations` - Fetch charts and analytics data
+- `GET /api/health` - System health check
 
-### Presentation and Communication (10/10)
-- **Clear Structure**: Logical flow from problem to solution
-- **Technical Depth**: Detailed methodology explanation
-- **Practical Examples**: Real-world use case demonstrations
-- **Professional Delivery**: Complete project documentation
+### Information & Testing
+- `GET /api` - API documentation and endpoints
+- `GET /api/about` - Project and team information
+- `GET /api/astronauts` - Sample astronaut data
 
-## 🚀 Future Enhancements
+## 🚀 Deployment & Production
 
-### Technical Improvements
-- **Deep Learning**: Neural networks for complex pattern recognition
-- **Real-time Integration**: Live mission data feeds
-- **Mobile App**: Field-ready mission planning tool
-- **API Development**: Web service for external integration
+### Current Status
+- **Development**: Fully functional local development environment
+- **Testing**: Comprehensive error handling and validation
+- **Documentation**: Complete API documentation and usage guides
 
-### Data Expansion
-- **Medical Data**: Health metrics correlation
-- **Environmental Factors**: Space weather impact
-- **Equipment Performance**: Vehicle reliability analysis
-- **International Collaboration**: Multi-agency data integration
-
-### Advanced Analytics
-- **Anomaly Detection**: Mission risk identification
-- **Survival Analysis**: Mission success probability
-- **Optimization**: Multi-objective mission planning
-- **Simulation**: Monte Carlo mission outcome modeling
+### Production Considerations
+- **Containerization**: Docker support for consistent deployments
+- **Database**: Optional database integration for data persistence
+- **Scaling**: Load balancing for high-traffic scenarios
+- **Monitoring**: Application performance monitoring integration
 
 ## 📝 Project Structure
 
 ```
-/Users/calebhan/Documents/Coding/UNC/cdc25/
-├── mission_duration_analysis.ipynb    # Main Jupyter notebook
-├── mission_analysis_demo.py           # Quick demo script
-├── requirements.txt                   # Dependencies
-├── README.md                         # This file
+cdc25/
+├── README.md                          # Project documentation
+├── requirements.txt                   # Python dependencies
 ├── data/
-│   └── Social_Science.csv           # Astronaut mission data
-└── outputs/
-    └── mission_analysis_summary.png  # Generated visualizations
+│   └── Social_Science.csv            # Astronaut mission dataset
+├── src/
+│   ├── backend/                      # Flask API server
+│   │   ├── app.py                    # Main Flask application
+│   │   ├── models.py                 # ML models and prediction logic
+│   │   └── data.py                   # Data processing utilities
+│   └── frontend/                     # React web application
+│       ├── package.json              # Node.js dependencies
+│       ├── src/
+│       │   ├── App.js               # Main React component
+│       │   ├── components/          # UI components
+│       │   └── services/            # API integration
+│       └── build/                    # Production build files
+└── testing/
+    └── mission_duration_analysis.ipynb  # Jupyter notebook analysis
 ```
 
-## 🤝 Contributing
+## 🔧 Development Notes
 
-This project is designed for the hackathon competition but can be extended for research and practical applications. Key areas for contribution:
+### Model Performance
+- **Training R²**: 0.8758 (excellent fit on training data)
+- **Testing R²**: 0.6668 (good generalization)
+- **RMSE**: 70.66 hours (reasonable prediction accuracy)
+- **Features**: Age, Missions, Space_time, Nationality_encoded
 
-1. **Data Enhancement**: Additional datasets integration
-2. **Model Improvement**: Advanced algorithms implementation
-3. **Visualization**: New dashboard components
-4. **Documentation**: Use case expansion
+### Known Issues & Limitations
+- **Data Dependency**: Model performance depends on training data quality
+- **Feature Scope**: Limited to basic astronaut characteristics
+- **Scalability**: Current implementation optimized for demonstration
+
+### Future Enhancements
+- **Advanced Features**: Health metrics, psychological profiles, mission complexity
+- **Real-time Data**: Integration with live mission data feeds
+- **Enhanced UI**: More sophisticated visualizations and dashboards
+- **Mobile Support**: Responsive design optimization for mobile devices
 
 ## 📄 License
 
-This project is developed for educational and research purposes in the context of the hackathon competition.
+This project is developed for the Carolina Data Challenge 2025 hackathon competition.
 
 ---
 
-**Developed for the Mission Duration & Performance Analysis Hackathon Track**
+**CDC25 - Empowering safer space exploration through intelligent risk assessment**
 
-*Empowering the future of space exploration through data-driven mission planning*
+*Built with ❤️ for the Carolina Data Challenge 2025*
