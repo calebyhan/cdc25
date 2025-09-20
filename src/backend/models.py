@@ -1,0 +1,418 @@
+# models.py - Machine Learning models for CDC25 mission duration prediction
+import pandas as pd
+import numpy as np
+import joblib
+import os
+from datetime import datetime
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, VotingRegressor, StackingRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.svm import SVR
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+import warnings
+warnings.filterwarnings('ignore')
+
+# Global variables for model state
+MODEL_STATE = {
+    'is_trained': False,
+    'model': None,
+    'scaler': None,
+    'label_encoders': {},
+    'feature_names': [],
+    'model_version': '1.0.0',
+    'training_score': {},
+    'prediction_count': 0,
+    'last_updated': None
+}
+
+def load_and_prepare_data():
+    """Load and prepare the astronaut mission data for training"""
+    try:
+        # Load the Social Science dataset
+        data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'Social_Science.csv')
+
+        if not os.path.exists(data_path):
+            print(f"Warning: Data file not found at {data_path}")
+            return create_synthetic_data()
+
+        df = pd.read_csv(data_path)
+
+        # Clean and prepare the data
+        df_clean = df.dropna(subset=['Name', 'Year', 'Mission'])
+
+        # Feature engineering
+        df_clean['Age'] = df_clean.get('Age', np.random.randint(25, 60, len(df_clean)))
+        df_clean['Missions'] = df_clean.groupby('Name').cumcount() + 1
+        df_clean['Space_time'] = df_clean.get('Space_time', np.random.randint(50, 500, len(df_clean)))
+
+        # Create mission duration target (hours)
+        np.random.seed(42)
+        base_duration = np.random.normal(200, 50, len(df_clean))
+        age_factor = (df_clean['Age'] - 35) * -2
+        experience_factor = df_clean['Missions'] * 10
+        space_time_factor = df_clean['Space_time'] * 0.5
+
+        df_clean['Mission_Duration_Hours'] = np.maximum(
+            base_duration + age_factor + experience_factor + space_time_factor,
+            24  # Minimum 24 hours
+        )
+
+        return df_clean
+
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        return create_synthetic_data()
+
+def create_synthetic_data():
+    """Create synthetic astronaut data for demonstration"""
+    np.random.seed(42)
+    n_samples = 200
+
+    names = [f"Astronaut_{i}" for i in range(n_samples)]
+    ages = np.random.randint(25, 60, n_samples)
+    nationalities = np.random.choice(['USA', 'Russia', 'Japan', 'ESA', 'Canada', 'China'], n_samples)
+    missions = np.random.randint(1, 8, n_samples)
+    space_time = np.random.randint(50, 1000, n_samples)
+
+    # Generate realistic mission durations
+    base_duration = np.random.normal(200, 50, n_samples)
+    age_factor = (ages - 35) * -2
+    experience_factor = missions * 15
+    space_time_factor = space_time * 0.3
+
+    mission_duration = np.maximum(
+        base_duration + age_factor + experience_factor + space_time_factor,
+        24
+    )
+
+    return pd.DataFrame({
+        'Name': names,
+        'Age': ages,
+        'Nationality': nationalities,
+        'Missions': missions,
+        'Space_time': space_time,
+        'Mission_Duration_Hours': mission_duration
+    })
+
+def prepare_features(df):
+    """Prepare features for machine learning"""
+    features_df = df.copy()
+
+    # Numerical features
+    numerical_features = ['Age', 'Missions', 'Space_time']
+
+    # Categorical features
+    categorical_features = ['Nationality']
+
+    # Handle categorical encoding
+    for cat_feature in categorical_features:
+        if cat_feature in features_df.columns:
+            le = LabelEncoder()
+            features_df[f'{cat_feature}_encoded'] = le.fit_transform(features_df[cat_feature].astype(str))
+            MODEL_STATE['label_encoders'][cat_feature] = le
+
+    # Select final features
+    feature_columns = numerical_features + [f'{cat}_encoded' for cat in categorical_features if cat in features_df.columns]
+
+    X = features_df[feature_columns]
+    y = features_df['Mission_Duration_Hours']
+
+    MODEL_STATE['feature_names'] = feature_columns
+
+    return X, y
+
+def train_model():
+    """Train the ensemble machine learning model"""
+    try:
+        print("Loading and preparing data...")
+        df = load_and_prepare_data()
+
+        print(f"Dataset shape: {df.shape}")
+
+        # Prepare features
+        X, y = prepare_features(df)
+
+        print(f"Features: {MODEL_STATE['feature_names']}")
+
+        # Split the data
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Scale features
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+
+        # Create ensemble model
+        print("Training ensemble model...")
+
+        # Base models
+        rf = RandomForestRegressor(n_estimators=100, random_state=42, max_depth=10)
+        gb = GradientBoostingRegressor(n_estimators=100, random_state=42, max_depth=6)
+        mlp = MLPRegressor(hidden_layer_sizes=(100, 50), random_state=42, max_iter=500)
+        svr = SVR(kernel='rbf', C=100, gamma='scale')
+
+        # Stacking ensemble
+        base_models = [
+            ('rf', rf),
+            ('gb', gb),
+            ('mlp', mlp),
+            ('svr', svr)
+        ]
+
+        # Final estimator
+        final_estimator = Ridge(alpha=1.0)
+
+        # Create stacking regressor
+        stacking_model = StackingRegressor(
+            estimators=base_models,
+            final_estimator=final_estimator,
+            cv=5
+        )
+
+        # Train the model
+        stacking_model.fit(X_train_scaled, y_train)
+
+        # Evaluate the model
+        y_pred_train = stacking_model.predict(X_train_scaled)
+        y_pred_test = stacking_model.predict(X_test_scaled)
+
+        train_r2 = r2_score(y_train, y_pred_train)
+        test_r2 = r2_score(y_test, y_pred_test)
+        train_rmse = np.sqrt(mean_squared_error(y_train, y_pred_train))
+        test_rmse = np.sqrt(mean_squared_error(y_test, y_pred_test))
+
+        print(f"Training R2 Score: {train_r2:.4f}")
+        print(f"Testing R2 Score: {test_r2:.4f}")
+        print(f"Training RMSE: {train_rmse:.2f} hours")
+        print(f"Testing RMSE: {test_rmse:.2f} hours")
+
+        # Update model state
+        MODEL_STATE.update({
+            'is_trained': True,
+            'model': stacking_model,
+            'scaler': scaler,
+            'training_score': {
+                'r2_score': test_r2,
+                'rmse': test_rmse,
+                'train_r2': train_r2,
+                'train_rmse': train_rmse
+            },
+            'last_updated': datetime.now().isoformat()
+        })
+
+        print("Model training completed successfully!")
+
+        return True
+
+    except Exception as e:
+        print(f"Model training failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def predict_mission_risk(astronaut_data):
+    """Make risk prediction for an astronaut"""
+    try:
+        # Ensure model is trained
+        if not MODEL_STATE['is_trained']:
+            print("Training model...")
+            if not train_model():
+                return {'error': 'Model training failed'}
+
+        # Prepare input data
+        input_df = pd.DataFrame([{
+            'Age': astronaut_data['age'],
+            'Missions': astronaut_data['missions'],
+            'Space_time': astronaut_data['space_time'],
+            'Nationality': astronaut_data['nationality']
+        }])
+
+        # Encode categorical features
+        for cat_feature, encoder in MODEL_STATE['label_encoders'].items():
+            if cat_feature in input_df.columns:
+                try:
+                    input_df[f'{cat_feature}_encoded'] = encoder.transform(input_df[cat_feature].astype(str))
+                except ValueError:
+                    # Handle unknown categories
+                    input_df[f'{cat_feature}_encoded'] = 0
+
+        # Select features in the same order as training
+        X_input = input_df[MODEL_STATE['feature_names']]
+
+        # Scale features
+        X_input_scaled = MODEL_STATE['scaler'].transform(X_input)
+
+        # Make prediction
+        duration_pred = MODEL_STATE['model'].predict(X_input_scaled)[0]
+
+        # Calculate confidence interval (approximate)
+        base_uncertainty = MODEL_STATE['training_score']['rmse']
+        confidence_interval = [
+            max(24, duration_pred - 1.96 * base_uncertainty),
+            duration_pred + 1.96 * base_uncertainty
+        ]
+
+        # Risk assessment based on duration and astronaut factors
+        age = astronaut_data['age']
+        missions = astronaut_data['missions']
+        space_time = astronaut_data['space_time']
+
+        # Calculate risk factors
+        age_risk = max(0, (age - 50) * 0.02) if age > 50 else 0
+        inexperience_risk = max(0, (3 - missions) * 0.1) if missions < 3 else 0
+        long_duration_risk = max(0, (duration_pred - 300) * 0.001) if duration_pred > 300 else 0
+
+        total_risk = age_risk + inexperience_risk + long_duration_risk
+        risk_score = min(1.0, max(0.1, total_risk))
+
+        # Risk level classification
+        if risk_score < 0.3:
+            risk_level = 'Low'
+        elif risk_score < 0.6:
+            risk_level = 'Medium'
+        else:
+            risk_level = 'High'
+
+        # Generate risk factors as an array of descriptive strings for frontend
+        risk_factors = []
+        if age_risk > 0:
+            risk_factors.append(f"Age-related risk: {age} years old (score: {round(age_risk, 3)})")
+        if inexperience_risk > 0:
+            risk_factors.append(f"Limited experience: {missions} missions completed (score: {round(inexperience_risk, 3)})")
+        if long_duration_risk > 0:
+            risk_factors.append(f"Extended mission duration: {round(duration_pred, 1)} hours (score: {round(long_duration_risk, 3)})")
+
+        # Add general risk factors based on score
+        if risk_score >= 0.6:
+            risk_factors.append("High overall risk profile - requires enhanced monitoring")
+        elif risk_score >= 0.4:
+            risk_factors.append("Moderate risk profile - standard protocols with additional precautions")
+        else:
+            risk_factors.append("Low risk profile - standard mission protocols apply")
+
+        # If no specific risks, add a general assessment
+        if len(risk_factors) == 0:
+            risk_factors.append("No significant risk factors identified")
+
+        # Generate recommendations
+        recommendations = []
+        if age > 50:
+            recommendations.append("Consider additional health monitoring for older astronaut")
+        if missions < 3:
+            recommendations.append("Provide additional training and mentorship")
+        if duration_pred > 300:
+            recommendations.append("Plan for extended mission support and regular check-ins")
+        if risk_score > 0.6:
+            recommendations.append("Implement enhanced safety protocols")
+
+        if not recommendations:
+            recommendations.append("Standard mission protocols apply")
+
+        # Update prediction count
+        MODEL_STATE['prediction_count'] += 1
+
+        return {
+            'astronaut': {
+                'name': astronaut_data['name'],
+                'age': age,
+                'nationality': astronaut_data['nationality'],
+                'missions': missions,
+                'space_time': space_time
+            },
+            'prediction': {
+                'duration_hours': round(duration_pred, 1),
+                'duration_days': round(duration_pred / 24, 1),
+                'confidence_interval_hours': [round(ci, 1) for ci in confidence_interval]
+            },
+            'risk_assessment': {
+                'risk_score': round(risk_score, 3),
+                'risk_level': risk_level,
+            },
+            'risk_factors': risk_factors,
+            'recommendations': recommendations,
+            'model_info': {
+                'version': MODEL_STATE['model_version'],
+                'confidence': round(MODEL_STATE['training_score'].get('r2_score', 0.8), 3)
+            },
+            'timestamp': datetime.now().isoformat()
+        }
+
+    except Exception as e:
+        import traceback
+        return {
+            'error': f'Prediction failed: {str(e)}',
+            'traceback': traceback.format_exc()
+        }
+
+def get_model_status():
+    """Get current model status and information"""
+    return {
+        'is_trained': MODEL_STATE['is_trained'],
+        'model_version': MODEL_STATE['model_version'],
+        'feature_names': MODEL_STATE['feature_names'],
+        'training_score': MODEL_STATE['training_score'],
+        'prediction_count': MODEL_STATE['prediction_count'],
+        'last_updated': MODEL_STATE['last_updated'],
+        'model_type': 'Stacking Ensemble (RF + GB + MLP + SVR)'
+    }
+
+def generate_visualization_data():
+    """Generate data for visualizations"""
+    try:
+        # Load data
+        df = load_and_prepare_data()
+
+        # Age distribution
+        age_bins = pd.cut(df['Age'], bins=[0, 30, 40, 50, 100], labels=['Under 30', '30-39', '40-49', '50+'])
+        age_dist = age_bins.value_counts().to_dict()
+
+        # Nationality distribution
+        nationality_dist = df['Nationality'].value_counts().to_dict()
+
+        # Risk vs Duration analysis
+        df['Risk_Category'] = pd.cut(df['Mission_Duration_Hours'],
+                                   bins=[0, 150, 250, 500],
+                                   labels=['Low', 'Medium', 'High'])
+        risk_dist = df['Risk_Category'].value_counts().to_dict()
+
+        # Mission experience analysis
+        experience_stats = df.groupby('Missions').agg({
+            'Mission_Duration_Hours': 'mean',
+            'Age': 'mean'
+        }).round(2).to_dict('index')
+
+        return {
+            'statistics': {
+                'total_astronauts': len(df['Name'].unique()),
+                'total_missions': len(df),
+                'avg_mission_duration': round(df['Mission_Duration_Hours'].mean(), 1),
+                'countries': len(df['Nationality'].unique())
+            },
+            'charts': {
+                'age_distribution': [{'age_group': k, 'count': v} for k, v in age_dist.items()],
+                'nationality_distribution': [{'name': k, 'value': v} for k, v in nationality_dist.items()],
+                'risk_distribution': [{'risk_level': k, 'count': v} for k, v in risk_dist.items()],
+                'experience_analysis': [
+                    {
+                        'missions': k,
+                        'avg_duration': v['Mission_Duration_Hours'],
+                        'avg_age': v['Age']
+                    } for k, v in experience_stats.items()
+                ]
+            },
+            'model_metrics': MODEL_STATE['training_score'] if MODEL_STATE['is_trained'] else {},
+            'timestamp': datetime.now().isoformat()
+        }
+
+    except Exception as e:
+        return {
+            'error': f'Visualization data generation failed: {str(e)}',
+            'fallback': True
+        }
+
+# Initialize model on import
+if __name__ == "__main__":
+    print("Training model...")
+    train_model()
