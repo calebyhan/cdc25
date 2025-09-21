@@ -1,81 +1,65 @@
-// Visualizations component - displays data analytics and charts
-import React, { useState, useEffect } from 'react';
+// components/Visualizations.js
+import React, { useState, useEffect, useMemo } from 'react';
 import {
-  VStack,
-  HStack,
-  Heading,
-  Text,
-  Card,
-  CardHeader,
-  CardBody,
-  Spinner,
-  Alert,
-  AlertIcon,
-  SimpleGrid,
-  Icon,
-  Select,
-  Badge,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
+  Box, VStack, HStack, Heading, Text, Card, CardHeader, CardBody, Spinner, Alert, AlertIcon,
+  SimpleGrid, Icon, Select, Badge, Stat, StatLabel, StatNumber, StatHelpText, useColorModeValue, Divider,
 } from '@chakra-ui/react';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  ScatterChart,
-  Scatter,
-  Area,
-  AreaChart,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, ScatterChart, Scatter, Area, AreaChart,
 } from 'recharts';
-import {
-  FiBarChart,
-  FiTrendingUp,
-  FiActivity,
-  FiUsers,
-  FiGlobe,
-} from 'react-icons/fi';
+import { FiBarChart2, FiTrendingUp, FiActivity, FiUsers, FiGlobe } from 'react-icons/fi';
 import { apiService, handleApiError } from '../services/api';
 
-const Visualizations = () => {
+export default function Visualizations() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedChart, setSelectedChart] = useState('overview');
 
+  const panelBg = useColorModeValue('whiteAlpha.50', 'whiteAlpha.50');
+  const panelBorder = useColorModeValue('whiteAlpha.200', 'whiteAlpha.200');
+
   useEffect(() => {
+    const fetchVisualizations = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await apiService.getVisualizations();
+        setData(response);
+      } catch (err) {
+        setError(handleApiError(err));
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchVisualizations();
   }, []);
 
-  const fetchVisualizations = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await apiService.getVisualizations();
-      setData(response);
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
-      setLoading(false);
-    }
+  const colors = ['#60a5fa', '#34d399', '#f59e0b', '#f87171', '#a78bfa', '#fb923c', '#22d3ee'];
+  const chartOptions = [
+    { value: 'overview', label: 'Overview Dashboard' },
+    { value: 'missions', label: 'Mission Analysis' },
+    { value: 'demographics', label: 'Demographics' },
+    { value: 'risk', label: 'Risk Assessment' },
+  ];
+  const axisTick = { fill: 'rgba(226,232,240,0.85)', fontSize: 12 };
+  const gridStroke = 'rgba(255,255,255,0.15)';
+  const tooltipStyle = {
+    background: '#0b1020',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderRadius: 8,
   };
+
+  // Move hooks ABOVE conditional returns
+  const ageDist = useMemo(() => data?.charts?.age_distribution ?? [], [data]);
+  const nationalityDist = useMemo(() => data?.charts?.nationality_distribution ?? [], [data]);
 
   if (loading) {
     return (
       <VStack spacing={4} align="center" py={8}>
-        <Spinner size="xl" color="brand.500" thickness="4px" />
-        <Text>Loading analytics data...</Text>
+        <Spinner size="xl" color="cyan.400" thickness="4px" />
+        <Text color="cyan.300">Loading analytics data…</Text>
       </VStack>
     );
   }
@@ -92,28 +76,20 @@ const Visualizations = () => {
     );
   }
 
-  // Color schemes for charts
-  const colors = ['#3182CE', '#38A169', '#D69E2E', '#E53E3E', '#805AD5', '#DD6B20', '#319795'];
-
-  // Chart type options
-  const chartOptions = [
-    { value: 'overview', label: 'Overview Dashboard' },
-    { value: 'missions', label: 'Mission Analysis' },
-    { value: 'demographics', label: 'Demographics' },
-    { value: 'risk', label: 'Risk Assessment' },
-  ];
-
   return (
     <VStack spacing={6} align="stretch">
-      {/* Header */}
-      <Card>
+      <Card bg={panelBg} border="1px solid" borderColor={panelBorder}>
         <CardHeader>
-          <HStack justify="space-between">
-            <HStack>
-              <Icon as={FiBarChart} color="teal.500" boxSize={6} />
+          <HStack justify="space-between" align="start">
+            <HStack spacing={3}>
+              <Box w="36px" h="36px" rounded="full" bgGradient="linear(to-r, cyan.500, purple.500)"
+                   display="grid" placeItems="center" color="white"
+                   boxShadow="0 0 18px rgba(56,189,248,0.45)">
+                <Icon as={FiBarChart2} />
+              </Box>
               <VStack align="start" spacing={1}>
-                <Heading size="md">📊 Data Analytics Dashboard</Heading>
-                <Text fontSize="sm" color="gray.600">
+                <Heading size="md" bgGradient="linear(to-r, cyan.300, purple.300)" bgClip="text">Data Analytics Dashboard</Heading>
+                <Text fontSize="sm" color="gray.400">
                   Interactive visualizations of astronaut data and mission statistics
                 </Text>
               </VStack>
@@ -121,110 +97,67 @@ const Visualizations = () => {
             <Select
               value={selectedChart}
               onChange={(e) => setSelectedChart(e.target.value)}
-              w="200px"
+              w="56"
+              size="sm"
+              bg="whiteAlpha.100"
+              borderColor="whiteAlpha.300"
+              _focus={{ borderColor: 'cyan.300' }}
             >
-              {chartOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
+              {chartOptions.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </Select>
           </HStack>
         </CardHeader>
       </Card>
 
-      {/* Statistics Overview */}
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={6}>
-        <Stat>
-          <StatLabel>
-            <HStack>
-              <Icon as={FiUsers} color="blue.500" />
-              <Text>Total Astronauts</Text>
-            </HStack>
-          </StatLabel>
-          <StatNumber color="blue.500">{data?.statistics?.total_astronauts || 0}</StatNumber>
-          <StatHelpText>In dataset</StatHelpText>
-        </Stat>
-        <Stat>
-          <StatLabel>
-            <HStack>
-              <Icon as={FiActivity} color="green.500" />
-              <Text>Total Missions</Text>
-            </HStack>
-          </StatLabel>
-          <StatNumber color="green.500">{data?.statistics?.total_missions || 0}</StatNumber>
-          <StatHelpText>Completed</StatHelpText>
-        </Stat>
-        <Stat>
-          <StatLabel>
-            <HStack>
-              <Icon as={FiGlobe} color="purple.500" />
-              <Text>Countries</Text>
-            </HStack>
-          </StatLabel>
-          <StatNumber color="purple.500">{data?.statistics?.countries || 0}</StatNumber>
-          <StatHelpText>Represented</StatHelpText>
-        </Stat>
-        <Stat>
-          <StatLabel>
-            <HStack>
-              <Icon as={FiTrendingUp} color="orange.500" />
-              <Text>Avg Risk Score</Text>
-            </HStack>
-          </StatLabel>
-          <StatNumber color="orange.500">
-            {data?.statistics?.avg_risk_score ? (data.statistics.avg_risk_score * 100).toFixed(1) + '%' : 'N/A'}
-          </StatNumber>
-          <StatHelpText>Model prediction</StatHelpText>
-        </Stat>
+        <StatTile icon={FiUsers} color="cyan" label="Total Astronauts"
+                  value={data?.statistics?.total_astronauts ?? 0} help="In dataset" />
+        <StatTile icon={FiActivity} color="green" label="Total Missions"
+                  value={data?.statistics?.total_missions ?? 0} help="Completed" />
+        <StatTile icon={FiGlobe} color="purple" label="Countries"
+                  value={data?.statistics?.countries ?? 0} help="Represented" />
+        <StatTile icon={FiTrendingUp} color="orange" label="Avg Risk Score"
+                  value={data?.statistics?.avg_risk_score ? `${(data.statistics.avg_risk_score * 100).toFixed(1)}%` : 'N/A'}
+                  help="Model prediction" />
       </SimpleGrid>
 
-      {/* Chart Content */}
       {selectedChart === 'overview' && data?.charts && (
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-          {/* Age Distribution */}
-          <Card>
-            <CardHeader>
-              <Heading size="sm">Age Distribution</Heading>
-            </CardHeader>
+          <Card bg={panelBg} border="1px solid" borderColor={panelBorder}>
+            <CardHeader pb={0}><Heading size="sm" color="cyan.300">Age Distribution</Heading></CardHeader>
             <CardBody>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data.charts.age_distribution}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="age_group" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill={colors[0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <Box w="100%" h="300px">
+                <ResponsiveContainer>
+                  <BarChart data={ageDist}>
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+                    <XAxis dataKey="age_group" tick={axisTick} />
+                    <YAxis tick={axisTick} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey="count" radius={[6,6,0,0]} fill={colors[0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
             </CardBody>
           </Card>
 
-          {/* Nationality Distribution */}
-          <Card>
-            <CardHeader>
-              <Heading size="sm">Nationality Distribution</Heading>
-            </CardHeader>
+          <Card bg={panelBg} border="1px solid" borderColor={panelBorder}>
+            <CardHeader pb={0}><Heading size="sm" color="gray.200">Nationality Distribution</Heading></CardHeader>
             <CardBody>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={data.charts.nationality_distribution}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, value }) => `${name}: ${value}`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {data.charts.nationality_distribution?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              <Box w="100%" h="300px">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie data={nationalityDist} dataKey="value" nameKey="name"
+                         cx="50%" cy="50%" innerRadius={50} outerRadius={90} paddingAngle={2}
+                         label={({ name, value }) => `${name}: ${value}`}>
+                      {nationalityDist.map((_, i) => <Cell key={i} fill={colors[i % colors.length]} />)}
+                    </Pie>
+                    <Legend />
+                    <Tooltip contentStyle={tooltipStyle} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Box>
             </CardBody>
           </Card>
         </SimpleGrid>
@@ -232,43 +165,37 @@ const Visualizations = () => {
 
       {selectedChart === 'missions' && data?.charts && (
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-          {/* Mission Count Distribution */}
-          <Card>
-            <CardHeader>
-              <Heading size="sm">Mission Experience Levels</Heading>
-            </CardHeader>
+          <Card bg={panelBg} border="1px solid" borderColor={panelBorder}>
+            <CardHeader pb={0}><Heading size="sm">Mission Experience Levels</Heading></CardHeader>
             <CardBody>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data.charts.mission_distribution}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mission_range" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill={colors[1]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <Box w="100%" h="300px">
+                <ResponsiveContainer>
+                  <BarChart data={data.charts.mission_distribution}>
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+                    <XAxis dataKey="mission_range" tick={axisTick} />
+                    <YAxis tick={axisTick} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey="count" radius={[6,6,0,0]} fill={colors[1]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
             </CardBody>
           </Card>
 
-          {/* Space Time vs Mission Count */}
-          <Card>
-            <CardHeader>
-              <Heading size="sm">Space Time vs Mission Count</Heading>
-            </CardHeader>
+          <Card bg={panelBg} border="1px solid" borderColor={panelBorder}>
+            <CardHeader pb={0}><Heading size="sm">Space Time vs Mission Count</Heading></CardHeader>
             <CardBody>
-              <ResponsiveContainer width="100%" height={300}>
-                <ScatterChart data={data.charts.scatter_data}>
-                  <XAxis dataKey="missions" name="Missions" />
-                  <YAxis dataKey="space_time" name="Space Time (days)" />
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                  <Scatter
-                    name="Astronauts"
-                    data={data.charts.scatter_data}
-                    fill={colors[2]}
-                  />
-                </ScatterChart>
-              </ResponsiveContainer>
+              <Box w="100%" h="300px">
+                <ResponsiveContainer>
+                  <ScatterChart>
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+                    <XAxis dataKey="missions" name="Missions" tick={axisTick} />
+                    <YAxis dataKey="space_time" name="Space Time (days)" tick={axisTick} />
+                    <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={tooltipStyle} />
+                    <Scatter data={data.charts.scatter_data} fill={colors[2]} />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </Box>
             </CardBody>
           </Card>
         </SimpleGrid>
@@ -276,69 +203,41 @@ const Visualizations = () => {
 
       {selectedChart === 'demographics' && data?.charts && (
         <VStack spacing={6}>
-          {/* Age vs Experience Trend */}
-          <Card w="100%">
-            <CardHeader>
-              <Heading size="sm">Age vs Experience Correlation</Heading>
-            </CardHeader>
+          <Card w="100%" bg={panelBg} border="1px solid" borderColor={panelBorder}>
+            <CardHeader pb={0}><Heading size="sm">Age vs Experience Correlation</Heading></CardHeader>
             <CardBody>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={data.charts.age_experience_trend}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="age" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="avg_missions"
-                    stroke={colors[3]}
-                    strokeWidth={2}
-                    name="Average Missions"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="avg_space_time"
-                    stroke={colors[4]}
-                    strokeWidth={2}
-                    name="Average Space Time"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <Box w="100%" h="380px">
+                <ResponsiveContainer>
+                  <LineChart data={data.charts.age_experience_trend}>
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+                    <XAxis dataKey="age" tick={axisTick} />
+                    <YAxis tick={axisTick} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Legend />
+                    <Line type="monotone" dataKey="avg_missions" stroke={colors[3]} strokeWidth={2} name="Average Missions" />
+                    <Line type="monotone" dataKey="avg_space_time" stroke={colors[4]} strokeWidth={2} name="Average Space Time" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
             </CardBody>
           </Card>
 
-          {/* Gender Distribution */}
-          <Card w="100%">
-            <CardHeader>
-              <Heading size="sm">Gender Representation Over Time</Heading>
-            </CardHeader>
+          <Card w="100%" bg={panelBg} border="1px solid" borderColor={panelBorder}>
+            <CardHeader pb={0}><Heading size="sm">Gender Representation Over Time</Heading></CardHeader>
             <CardBody>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={data.charts.gender_timeline}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="decade" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="male"
-                    stackId="1"
-                    stroke={colors[0]}
-                    fill={colors[0]}
-                    name="Male"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="female"
-                    stackId="1"
-                    stroke={colors[1]}
-                    fill={colors[1]}
-                    name="Female"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <Box w="100%" h="300px">
+                <ResponsiveContainer>
+                  <AreaChart data={data.charts.gender_timeline}>
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+                    <XAxis dataKey="decade" tick={axisTick} />
+                    <YAxis tick={axisTick} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Legend />
+                    <Area type="monotone" dataKey="male" stackId="1" stroke={colors[0]} fill={colors[0]} name="Male" />
+                    <Area type="monotone" dataKey="female" stackId="1" stroke={colors[1]} fill={colors[1]} name="Female" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </Box>
             </CardBody>
           </Card>
         </VStack>
@@ -346,68 +245,62 @@ const Visualizations = () => {
 
       {selectedChart === 'risk' && data?.charts && (
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-          {/* Risk Score Distribution */}
-          <Card>
-            <CardHeader>
-              <Heading size="sm">Risk Score Distribution</Heading>
-            </CardHeader>
+          <Card bg={panelBg} border="1px solid" borderColor={panelBorder}>
+            <CardHeader pb={0}><Heading size="sm">Risk Score Distribution</Heading></CardHeader>
             <CardBody>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data.charts.risk_distribution}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="risk_level" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill={colors[5]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <Box w="100%" h="300px">
+                <ResponsiveContainer>
+                  <BarChart data={data.charts.risk_distribution}>
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" />
+                    <XAxis dataKey="risk_level" tick={axisTick} />
+                    <YAxis tick={axisTick} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey="count" radius={[6,6,0,0]} fill={colors[5]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
             </CardBody>
           </Card>
 
-          {/* Risk Factors */}
-          <Card>
-            <CardHeader>
-              <Heading size="sm">Primary Risk Factors</Heading>
-            </CardHeader>
+          <Card bg={panelBg} border="1px solid" borderColor={panelBorder}>
+            <CardHeader pb={0}><Heading size="sm">Primary Risk Factors</Heading></CardHeader>
             <CardBody>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={data.charts.risk_factors}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, value }) => `${name}: ${value}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="percentage"
-                  >
-                    {data.charts.risk_factors?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              <Box w="100%" h="300px">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={data.charts.risk_factors}
+                      dataKey="percentage"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={90}
+                      label={({ name, percentage }) => `${name}: ${percentage}%`}
+                    >
+                      {data.charts.risk_factors.map((_, i) => <Cell key={i} fill={colors[i % colors.length]} />)}
+                    </Pie>
+                    <Tooltip contentStyle={tooltipStyle} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Box>
             </CardBody>
           </Card>
         </SimpleGrid>
       )}
 
-      {/* Data Source Information */}
-      <Card>
+      <Card bg={panelBg} border="1px solid" borderColor={panelBorder}>
         <CardBody>
-          <VStack spacing={2}>
-            <Text fontSize="sm" color="gray.600" textAlign="center">
-              📈 <strong>Data Source:</strong> Visualizations are generated from real-time analysis of astronaut
-              profiles and mission data processed by our ML pipeline.
+          <VStack spacing={3}>
+            <Text fontSize="sm" color="gray.300" textAlign="center">
+              Data Source: Visualizations are generated from real-time analysis of astronaut profiles and mission data processed by our ML pipeline.
             </Text>
-            <HStack spacing={4}>
-              <Badge colorScheme="blue">Interactive Charts</Badge>
-              <Badge colorScheme="green">Real-time Data</Badge>
-              <Badge colorScheme="purple">ML Insights</Badge>
-              <Badge colorScheme="orange">Historical Analysis</Badge>
+            <HStack spacing={2} wrap="wrap" justify="center">
+              <Badge colorScheme="blue" variant="subtle">Interactive Charts</Badge>
+              <Badge colorScheme="green" variant="subtle">Real-time Data</Badge>
+              <Badge colorScheme="purple" variant="subtle">ML Insights</Badge>
+              <Badge colorScheme="orange" variant="subtle">Historical Analysis</Badge>
             </HStack>
+            <Divider borderColor="whiteAlpha.200" />
             <Text fontSize="xs" color="gray.500" textAlign="center">
               Charts update automatically when new data is processed through the risk assessment system.
             </Text>
@@ -416,6 +309,21 @@ const Visualizations = () => {
       </Card>
     </VStack>
   );
-};
+}
 
-export default Visualizations;
+function StatTile({ icon: IconCmp, value, label, help, color }) {
+  return (
+    <Card bg="whiteAlpha.50" border="1px solid" borderColor="whiteAlpha.200">
+      <CardBody>
+        <HStack justify="space-between" mb={1}>
+          <Icon as={IconCmp} color={`${color}.300`} boxSize={5} />
+          <Stat textAlign="right">
+          <StatNumber color={`${color}.200`}>{value}</StatNumber>
+            <StatLabel color={`${color}.300`}>{label}</StatLabel>
+            <StatHelpText color="gray.500">{help}</StatHelpText>
+          </Stat>
+        </HStack>
+      </CardBody>
+    </Card>
+  );
+}
