@@ -39,7 +39,7 @@ npm start
 ## Project Team
 **Team CDC25**  
 - **Caleb Han** — Full-stack development, ML integration  
-- **Ethan Tran** — Data analysis and model development  
-- **Erae Ko** — Frontend development and UI/UX  
-- **Jeffery Liu** — Backend architecture and API design  
+- **Ethan Tran** — Backend architecture, API Design, Frontend
+- **Erae Ko** — UIUX
+- **Jeffrey Liu** — UIUX
 
