@@ -28,8 +28,9 @@ export default function Navbar() {
       onClick={() => navigate(item.path)}
       leftIcon={<Icon as={item.icon} />}
       variant="ghost"
-      color={isActive ? 'white' : 'gray.400'}
-      _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
+      color={isActive ? 'white' : 'gray.200'}
+      _hover={{ color: 'white', bg: 'whiteAlpha.150', transform: 'translateY(-1px)' }}
+      transition="all 0.2s"
       _active={{ bg: 'whiteAlpha.200' }}
       fontWeight="medium"
       size="sm"
@@ -75,10 +76,11 @@ export default function Navbar() {
             onClick={onToggle}
             display={{ base: 'inline-flex', md: 'none' }}
             variant="ghost"
-            color="gray.300"
+            color="gray.200"
             leftIcon={<Icon as={FiMenu} />}
-            _hover={{ bg: 'whiteAlpha.100', color: 'white' }}
+            _hover={{ bg: 'whiteAlpha.150', color: 'white' }}
             size="sm"
+            fontWeight="medium"
           >
             Menu
           </Button>
@@ -95,8 +97,9 @@ export default function Navbar() {
                 leftIcon={<Icon as={i.icon} />}
                 justifyContent="flex-start"
                 variant="ghost"
-                color={pathname === i.path ? 'white' : 'gray.300'}
-                _hover={{ bg: 'whiteAlpha.100', color: 'white' }}
+                color={pathname === i.path ? 'white' : 'gray.200'}
+                _hover={{ bg: 'whiteAlpha.150', color: 'white' }}
+                fontWeight="medium"
                 size="sm"
               >
                 {i.label}

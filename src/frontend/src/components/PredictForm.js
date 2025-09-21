@@ -153,7 +153,7 @@ const PredictForm = () => {
         }}
       />
       <VStack spacing={6} align="stretch" position="relative">
-        <Card bg="rgba(255,255,255,0.05)" border="1px solid" borderColor="whiteAlpha.300" backdropFilter="blur(8px)" boxShadow="0 0 24px rgba(56,189,248,0.18)">
+        <Card bg="rgba(255,255,255,0.06)" border="1px solid" borderColor="whiteAlpha.400" backdropFilter="blur(10px)" boxShadow="0 0 32px rgba(56,189,248,0.22)">
           <CardHeader pb={3}>
             <Flex align="center" justify="space-between" wrap="wrap" gap={3}>
               <HStack spacing={3}>
@@ -166,19 +166,19 @@ const PredictForm = () => {
               </HStack>
               <Tag colorScheme="green" variant="subtle">LIVE</Tag>
             </Flex>
-            <Text fontSize="sm" color="gray.200" mt={2}>
+            <Text fontSize="sm" color="gray.100" mt={2}>
               Enter astronaut and mission details to predict risk factors using our enhanced ML model
             </Text>
           </CardHeader>
           {predictInfo && (
             <CardBody pt={0}>
-              <Alert status="info" borderRadius="md" bg="blue.900" color="blue.100" borderColor="blue.300">
+              <Alert status="info" borderRadius="md" bg="blue.900" color="blue.50" borderColor="blue.400" border="1px solid">
                 <AlertIcon />
                 <VStack align="start" spacing={1}>
-                  <Text fontSize="sm">
+                  <Text fontSize="sm" fontWeight="medium">
                     <strong>Model Info:</strong> {predictInfo.model_info}
                   </Text>
-                  <Text fontSize="xs" color="blue.200">
+                  <Text fontSize="xs" color="blue.100">
                     Expected input: Name, Age, Nationality, Mission Count, Space Time days
                   </Text>
                 </VStack>
@@ -188,7 +188,7 @@ const PredictForm = () => {
         </Card>
 
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-          <Card bg="rgba(255,255,255,0.06)" border="1px solid" borderColor="whiteAlpha.300" backdropFilter="blur(8px)">
+          <Card bg="rgba(255,255,255,0.07)" border="1px solid" borderColor="whiteAlpha.400" backdropFilter="blur(10px)" boxShadow="0 4px 20px rgba(0,0,0,0.3)">
             <CardHeader>
               <HStack spacing={3}>
                 <Box boxSize={7} bg="whiteAlpha.300" borderRadius="md" display="grid" placeItems="center">
@@ -211,12 +211,14 @@ const PredictForm = () => {
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       placeholder="Enter astronaut name"
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _placeholder={{ color: 'whiteAlpha.700' }}
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 1px var(--chakra-colors-cyan-300)' }}
+                      _placeholder={{ color: 'whiteAlpha.800' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     />
                   </FormControl>
 
@@ -233,7 +235,7 @@ const PredictForm = () => {
                       min={20}
                       max={70}
                     >
-                      <NumberInputField bg="whiteAlpha.200" borderColor="whiteAlpha.500" color="white" _focus={{ borderColor: 'cyan.300' }} height="48px" />
+                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -251,11 +253,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.nationality}
                       onChange={(e) => handleInputChange('nationality', e.target.value)}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       {nationalities.map(nat => (
                         <option key={nat} value={nat}>{nat}</option>
@@ -276,7 +280,7 @@ const PredictForm = () => {
                       min={0}
                       max={20}
                     >
-                      <NumberInputField bg="whiteAlpha.200" borderColor="whiteAlpha.500" color="white" _focus={{ borderColor: 'cyan.300' }} height="48px" />
+                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -297,7 +301,7 @@ const PredictForm = () => {
                       min={0}
                       max={1000}
                     >
-                      <NumberInputField bg="whiteAlpha.200" borderColor="whiteAlpha.500" color="white" _focus={{ borderColor: 'cyan.300' }} height="48px" />
+                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -313,11 +317,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.mission_type}
                       onChange={(e) => handleInputChange('mission_type', e.target.value)}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       <option value="ISS Expedition">ISS Expedition</option>
                       <option value="Space Shuttle">Space Shuttle</option>
@@ -331,11 +337,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.role}
                       onChange={(e) => handleInputChange('role', e.target.value)}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       <option value="commander">Commander</option>
                       <option value="pilot">Pilot</option>
@@ -349,11 +357,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.launch_weather}
                       onChange={(e) => handleInputChange('launch_weather', e.target.value)}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       <option value="Clear">Clear</option>
                       <option value="Partly Cloudy">Partly Cloudy</option>
@@ -367,11 +377,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.manufacturer}
                       onChange={(e) => handleInputChange('manufacturer', e.target.value)}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       <option value="SpaceX">SpaceX</option>
                       <option value="Boeing">Boeing</option>
@@ -390,7 +402,7 @@ const PredictForm = () => {
                       step={0.1}
                       precision={1}
                     >
-                      <NumberInputField bg="whiteAlpha.200" borderColor="whiteAlpha.500" color="white" _focus={{ borderColor: 'cyan.300' }} height="48px" />
+                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -408,7 +420,7 @@ const PredictForm = () => {
                       step={0.01}
                       precision={2}
                     >
-                      <NumberInputField bg="whiteAlpha.200" borderColor="whiteAlpha.500" color="white" _focus={{ borderColor: 'cyan.300' }} height="48px" />
+                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -421,11 +433,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.military.toString()}
                       onChange={(e) => handleInputChange('military', e.target.value === 'true')}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       <option value="false">No</option>
                       <option value="true">Yes</option>
@@ -437,11 +451,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.experience_level}
                       onChange={(e) => handleInputChange('experience_level', e.target.value)}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       <option value="Junior">Junior</option>
                       <option value="Intermediate">Intermediate</option>
@@ -454,11 +470,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.age_group}
                       onChange={(e) => handleInputChange('age_group', e.target.value)}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       <option value="Young">Young</option>
                       <option value="Middle">Middle</option>
@@ -471,11 +489,13 @@ const PredictForm = () => {
                     <Select
                       value={formData.career_stage}
                       onChange={(e) => handleInputChange('career_stage', e.target.value)}
-                      bg="whiteAlpha.200"
-                      borderColor="whiteAlpha.500"
+                      bg="whiteAlpha.250"
+                      borderColor="whiteAlpha.600"
                       color="white"
-                      _focus={{ borderColor: 'cyan.300' }}
+                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
+                      _hover={{ borderColor: 'whiteAlpha.700' }}
                       height="48px"
+                      fontWeight="medium"
                     >
                       <option value="Early">Early</option>
                       <option value="Mid">Mid</option>
@@ -504,7 +524,7 @@ const PredictForm = () => {
             </CardBody>
           </Card>
 
-          <Card bg="rgba(255,255,255,0.06)" border="1px solid" borderColor="whiteAlpha.300" backdropFilter="blur(8px)">
+          <Card bg="rgba(255,255,255,0.07)" border="1px solid" borderColor="whiteAlpha.400" backdropFilter="blur(10px)" boxShadow="0 4px 20px rgba(0,0,0,0.3)">
             <CardHeader>
               <Heading size="md" color="white">Risk Assessment Results</Heading>
             </CardHeader>
@@ -512,8 +532,8 @@ const PredictForm = () => {
               {loading && (
                 <VStack spacing={4} py={8}>
                   <Spinner size="xl" color="cyan.300" thickness="4px" />
-                  <Text color="gray.100">Running risk assessment</Text>
-                  <Text fontSize="sm" color="gray.300">
+                  <Text color="gray.50" fontWeight="medium">Running risk assessment</Text>
+                  <Text fontSize="sm" color="gray.200">
                     Analyzing astronaut profile with the model
                   </Text>
                 </VStack>
@@ -553,7 +573,7 @@ const PredictForm = () => {
 
                   <Divider borderColor="whiteAlpha.400" />
 
-                  <VStack align="start" w="100%" spacing={3} color="gray.100">
+                  <VStack align="start" w="100%" spacing={3} color="gray.50">
                     <Text fontWeight="bold">Assessment Details</Text>
 
                     <Box>
@@ -580,7 +600,7 @@ const PredictForm = () => {
                       <Text fontSize="sm">
                         {prediction.astronaut.mission_type} - {prediction.astronaut.role}
                       </Text>
-                      <Text fontSize="xs" color="gray.300">
+                      <Text fontSize="xs" color="gray.200">
                         Weather: {prediction.astronaut.launch_weather}, Manufacturer: {prediction.astronaut.manufacturer}
                       </Text>
                     </Box>
@@ -591,7 +611,7 @@ const PredictForm = () => {
                         Complexity: {(prediction.astronaut.mission_complexity * 100).toFixed(0)}%,
                         Success Rate: {(prediction.astronaut.success_probability * 100).toFixed(0)}%
                       </Text>
-                      <Text fontSize="xs" color="gray.300">
+                      <Text fontSize="xs" color="gray.200">
                         Military: {prediction.astronaut.military ? 'Yes' : 'No'},
                         Experience: {prediction.astronaut.experience_level}
                       </Text>
@@ -602,7 +622,7 @@ const PredictForm = () => {
                         <Text fontSize="sm" fontWeight="medium">Key Risk Factors</Text>
                         <VStack align="start" spacing={1}>
                           {prediction.risk_factors.map((factor, index) => (
-                            <Text key={index} fontSize="sm" color="gray.200">• {factor}</Text>
+                            <Text key={index} fontSize="sm" color="gray.100">• {factor}</Text>
                           ))}
                         </VStack>
                       </Box>
@@ -610,7 +630,7 @@ const PredictForm = () => {
 
                     {prediction.model_version && (
                       <Box>
-                        <Text fontSize="xs" color="gray.300">
+                        <Text fontSize="xs" color="gray.200">
                           Model Version: {prediction.model_version}
                         </Text>
                       </Box>
@@ -620,9 +640,9 @@ const PredictForm = () => {
               )}
 
               {!loading && !error && !prediction && (
-                <VStack spacing={4} py={8} color="gray.200">
+                <VStack spacing={4} py={8} color="gray.100">
                   <Icon as={FiShield} boxSize={12} />
-                  <Text textAlign="center">
+                  <Text textAlign="center" fontWeight="medium">
                     Enter astronaut information and select Assess Risk to generate a prediction
                   </Text>
                 </VStack>
@@ -631,13 +651,13 @@ const PredictForm = () => {
           </Card>
         </SimpleGrid>
 
-        <Card bg="rgba(255,255,255,0.05)" border="1px solid" borderColor="whiteAlpha.300" backdropFilter="blur(8px)">
+        <Card bg="rgba(255,255,255,0.06)" border="1px solid" borderColor="whiteAlpha.400" backdropFilter="blur(10px)" boxShadow="0 4px 20px rgba(0,0,0,0.25)">
           <CardBody>
             <VStack spacing={2}>
-              <Text fontSize="sm" color="gray.100" textAlign="center">
+              <Text fontSize="sm" color="gray.50" textAlign="center" fontWeight="medium">
                 How it works: The enhanced model analyzes astronaut profile, mission complexity, environmental factors, and role responsibilities to estimate comprehensive risk.
               </Text>
-              <Text fontSize="xs" color="gray.300" textAlign="center">
+              <Text fontSize="xs" color="gray.200" textAlign="center">
                 Scores are produced by an ensemble model trained on historical data with mission-specific parameters.
               </Text>
             </VStack>
@@ -649,3 +669,4 @@ const PredictForm = () => {
 };
 
 export default PredictForm;
+

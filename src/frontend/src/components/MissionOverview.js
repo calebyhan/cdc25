@@ -1,4 +1,3 @@
-// components/MissionOverview.jsx
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -17,7 +16,6 @@ import {
   StatLabel,
   StatNumber,
   StatHelpText,
-  Progress,
   Badge,
 } from '@chakra-ui/react';
 import {
@@ -26,7 +24,6 @@ import {
   FiUsers,
   FiAlertTriangle,
   FiTarget,
-  FiClock,
 } from 'react-icons/fi';
 import { apiService, handleApiError } from '../services/api';
 
@@ -69,7 +66,7 @@ const MissionOverview = () => {
     return (
       <VStack minH="400px" justify="center">
         <Spinner size="xl" color="cyan.400" />
-        <Text color="cyan.300" fontWeight="medium">
+        <Text color="cyan.200" fontWeight="medium">
           Loading mission data...
         </Text>
       </VStack>
@@ -174,15 +171,15 @@ const MissionOverview = () => {
                       {astronaut.name?.charAt(0)}
                     </Box>
                     <Box>
-                      <Text fontWeight="medium">{astronaut.name}</Text>
-                      <Text fontSize="xs" color="gray.400">
+                      <Text fontWeight="medium" color="cyan.200">{astronaut.name}</Text>
+                      <Text fontSize="xs" color="gray.100">
                         {astronaut.missions} missions • {astronaut.space_time} days
                       </Text>
                     </Box>
                   </HStack>
                   <VStack align="end" spacing={1}>
                     <Badge colorScheme={risk.color}>{risk.label}</Badge>
-                    <Text fontSize="xs" color="gray.400">
+                    <Text fontSize="xs" color="gray.100">
                       {(astronaut.risk_score * 100).toFixed(1)}% risk
                     </Text>
                   </VStack>
@@ -213,7 +210,7 @@ const MissionOverview = () => {
 
           <Divider my={4} />
 
-          <Heading size="sm" color="gray.400" mb={2}>
+          <Heading size="sm" color="gray.50" mb={2}>
             System Status
           </Heading>
           <VStack spacing={2} align="stretch">
@@ -236,10 +233,10 @@ const MissionOverview = () => {
       >
         <Flex align="center" justify="space-between">
           <Box>
-            <Heading size="md" mb={1}>
+            <Heading size="md" mb={1} color="cyan.300">
               Mission Risk Analysis
             </Heading>
-            <Text fontSize="sm" color="gray.400">
+            <Text fontSize="sm" color="gray.50">
               Advanced ML models analyzing astronaut safety in real-time
             </Text>
           </Box>
@@ -262,11 +259,11 @@ const StatCard = ({ icon: Icon, value, label, help, color }) => (
       <Flex justify="space-between" align="center" mb={2}>
         <Icon size={28} color={`var(--chakra-colors-${color}-300)`} />
         <Stat textAlign="right">
-          <StatNumber>{value}</StatNumber>
+          <StatNumber color="white">{value}</StatNumber>
           <StatLabel color={`${color}.300`} fontWeight="medium">
             {label}
           </StatLabel>
-          <StatHelpText color="gray.400">{help}</StatHelpText>
+          <StatHelpText color="gray.100">{help}</StatHelpText>
         </Stat>
       </Flex>
     </Box>
@@ -275,10 +272,10 @@ const ActivityItem = ({ text, time, color }) => (
   <Flex align="start" gap={3}>
     <Box w={2} h={2} rounded="full" bg={color} mt={2} />
     <Box>
-      <Text fontSize="sm" color="gray.200">
+      <Text fontSize="sm" color="gray.50">
         {text}
       </Text>
-      <Text fontSize="xs" color="gray.500">
+      <Text fontSize="xs" color="gray.100">
         {time}
       </Text>
     </Box>
@@ -287,7 +284,7 @@ const ActivityItem = ({ text, time, color }) => (
 
 const StatusItem = ({ label, value, color }) => (
   <Flex justify="space-between">
-    <Text fontSize="xs" color="gray.400">
+    <Text fontSize="xs" color="gray.100">
       {label}
     </Text>
     <Text fontSize="xs" color={color}>

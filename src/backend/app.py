@@ -1,13 +1,9 @@
-# app.py
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from datetime import datetime
-import random
 import traceback
 
-# Import our ML models and data processing
 from models import predict_mission_risk, get_model_status, generate_visualization_data
-from data import validate_input_data
 
 # Initialize Flask app
 app = Flask(__name__)
