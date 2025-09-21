@@ -76,14 +76,34 @@ def create_synthetic_data():
     missions = np.random.randint(1, 8, n_samples)
     space_time = np.random.randint(50, 1000, n_samples)
 
-    # Generate realistic mission durations
+    # Generate new mission parameters
+    mission_types = np.random.choice(['ISS Expedition', 'Space Shuttle', 'Commercial Crew', 'Lunar Mission'], n_samples)
+    roles = np.random.choice(['commander', 'pilot', 'mission_specialist', 'flight_engineer'], n_samples)
+    launch_weather = np.random.choice(['Clear', 'Partly Cloudy', 'Overcast', 'Poor'], n_samples)
+    manufacturers = np.random.choice(['SpaceX', 'Boeing', 'Roscosmos', 'Other'], n_samples)
+    mission_complexity = np.random.uniform(0.1, 1.0, n_samples)
+    success_probability = np.random.uniform(0.7, 0.99, n_samples)
+    military = np.random.choice([True, False], n_samples)
+
+    # Derive experience levels from missions
+    experience_levels = ['Junior' if m < 2 else 'Senior' if m > 4 else 'Intermediate' for m in missions]
+    age_groups = ['Young' if a < 35 else 'Senior' if a > 50 else 'Middle' for a in ages]
+    career_stages = ['Early' if m < 3 else 'Experienced' if m > 5 else 'Mid' for m in missions]
+
+    # Generate realistic mission durations with new factors
     base_duration = np.random.normal(200, 50, n_samples)
     age_factor = (ages - 35) * -2
     experience_factor = missions * 15
     space_time_factor = space_time * 0.3
 
+    # New complexity and role factors
+    complexity_factor = mission_complexity * 100
+    role_factor = [20 if r == 'commander' else 10 if r == 'pilot' else 0 for r in roles]
+    weather_factor = [10 if w == 'Poor' else 5 if w == 'Overcast' else 0 for w in launch_weather]
+
     mission_duration = np.maximum(
-        base_duration + age_factor + experience_factor + space_time_factor,
+        base_duration + age_factor + experience_factor + space_time_factor +
+        complexity_factor + role_factor + weather_factor,
         24
     )
 
@@ -93,6 +113,16 @@ def create_synthetic_data():
         'Nationality': nationalities,
         'Missions': missions,
         'Space_time': space_time,
+        'Mission_Type': mission_types,
+        'Role': roles,
+        'Launch_Weather': launch_weather,
+        'Manufacturer': manufacturers,
+        'Mission_Complexity': mission_complexity,
+        'Success_Probability': success_probability,
+        'Military': military,
+        'Experience_Level': experience_levels,
+        'Age_Group': age_groups,
+        'Career_Stage': career_stages,
         'Mission_Duration_Hours': mission_duration
     })
 
@@ -101,10 +131,18 @@ def prepare_features(df):
     features_df = df.copy()
 
     # Numerical features
-    numerical_features = ['Age', 'Missions', 'Space_time']
+    numerical_features = ['Age', 'Missions', 'Space_time', 'Mission_Complexity', 'Success_Probability']
+
+    # Boolean features (convert to numeric)
+    boolean_features = ['Military']
+    for bool_feature in boolean_features:
+        if bool_feature in features_df.columns:
+            features_df[f'{bool_feature}_numeric'] = features_df[bool_feature].astype(int)
+            numerical_features.append(f'{bool_feature}_numeric')
 
     # Categorical features
-    categorical_features = ['Nationality']
+    categorical_features = ['Nationality', 'Mission_Type', 'Role', 'Launch_Weather',
+                           'Manufacturer', 'Experience_Level', 'Age_Group', 'Career_Stage']
 
     # Handle categorical encoding
     for cat_feature in categorical_features:
@@ -114,7 +152,9 @@ def prepare_features(df):
             MODEL_STATE['label_encoders'][cat_feature] = le
 
     # Select final features
-    feature_columns = numerical_features + [f'{cat}_encoded' for cat in categorical_features if cat in features_df.columns]
+    available_numerical = [f for f in numerical_features if f in features_df.columns]
+    available_categorical = [f'{cat}_encoded' for cat in categorical_features if cat in features_df.columns]
+    feature_columns = available_numerical + available_categorical
 
     X = features_df[feature_columns]
     y = features_df['Mission_Duration_Hours']
@@ -221,13 +261,29 @@ def predict_mission_risk(astronaut_data):
             if not train_model():
                 return {'error': 'Model training failed'}
 
-        # Prepare input data
-        input_df = pd.DataFrame([{
+        # Prepare input data with default values for optional fields
+        input_data = {
             'Age': astronaut_data['age'],
             'Missions': astronaut_data['missions'],
             'Space_time': astronaut_data['space_time'],
-            'Nationality': astronaut_data['nationality']
-        }])
+            'Nationality': astronaut_data['nationality'],
+            'Mission_Type': astronaut_data.get('mission_type', 'ISS Expedition'),
+            'Role': astronaut_data.get('role', 'mission_specialist'),
+            'Launch_Weather': astronaut_data.get('launch_weather', 'Clear'),
+            'Manufacturer': astronaut_data.get('manufacturer', 'Other'),
+            'Mission_Complexity': astronaut_data.get('mission_complexity', 0.5),
+            'Success_Probability': astronaut_data.get('success_probability', 0.9),
+            'Military': astronaut_data.get('military', False),
+            'Experience_Level': astronaut_data.get('experience_level', 'Intermediate'),
+            'Age_Group': astronaut_data.get('age_group', 'Middle'),
+            'Career_Stage': astronaut_data.get('career_stage', 'Mid')
+        }
+
+        input_df = pd.DataFrame([input_data])
+
+        # Handle boolean features
+        if 'Military' in input_df.columns:
+            input_df['Military_numeric'] = input_df['Military'].astype(int)
 
         # Encode categorical features
         for cat_feature, encoder in MODEL_STATE['label_encoders'].items():
@@ -259,13 +315,28 @@ def predict_mission_risk(astronaut_data):
         missions = astronaut_data['missions']
         space_time = astronaut_data['space_time']
 
+        # Get mission parameters for enhanced risk assessment
+        mission_complexity = input_data['Mission_Complexity']
+        success_probability = input_data['Success_Probability']
+        role = input_data['Role']
+        launch_weather = input_data['Launch_Weather']
+        military = input_data['Military']
+
         # Calculate risk factors
         age_risk = max(0, (age - 50) * 0.02) if age > 50 else 0
         inexperience_risk = max(0, (3 - missions) * 0.1) if missions < 3 else 0
         long_duration_risk = max(0, (duration_pred - 300) * 0.001) if duration_pred > 300 else 0
 
-        total_risk = age_risk + inexperience_risk + long_duration_risk
-        risk_score = min(1.0, max(0.1, total_risk))
+        # New mission-specific risk factors
+        complexity_risk = max(0, (mission_complexity - 0.7) * 0.3) if mission_complexity > 0.7 else 0
+        probability_risk = max(0, (0.9 - success_probability) * 0.5) if success_probability < 0.9 else 0
+        role_risk = 0.1 if role == 'commander' else 0.05 if role == 'pilot' else 0
+        weather_risk = 0.15 if launch_weather == 'Poor' else 0.08 if launch_weather == 'Overcast' else 0
+        military_bonus = -0.05 if military else 0  # Military experience reduces risk
+
+        total_risk = (age_risk + inexperience_risk + long_duration_risk +
+                     complexity_risk + probability_risk + role_risk + weather_risk + military_bonus)
+        risk_score = min(1.0, max(0.05, total_risk))
 
         # Risk level classification
         if risk_score < 0.3:
@@ -283,6 +354,16 @@ def predict_mission_risk(astronaut_data):
             risk_factors.append(f"Limited experience: {missions} missions completed (score: {round(inexperience_risk, 3)})")
         if long_duration_risk > 0:
             risk_factors.append(f"Extended mission duration: {round(duration_pred, 1)} hours (score: {round(long_duration_risk, 3)})")
+        if complexity_risk > 0:
+            risk_factors.append(f"High mission complexity: {round(mission_complexity, 2)} (score: {round(complexity_risk, 3)})")
+        if probability_risk > 0:
+            risk_factors.append(f"Lower success probability: {round(success_probability, 2)} (score: {round(probability_risk, 3)})")
+        if role_risk > 0:
+            risk_factors.append(f"Leadership role responsibility: {role} (score: {round(role_risk, 3)})")
+        if weather_risk > 0:
+            risk_factors.append(f"Adverse launch conditions: {launch_weather} (score: {round(weather_risk, 3)})")
+        if military_bonus < 0:
+            risk_factors.append(f"Military experience advantage (score: {round(military_bonus, 3)})")
 
         # Add general risk factors based on score
         if risk_score >= 0.6:
@@ -293,7 +374,7 @@ def predict_mission_risk(astronaut_data):
             risk_factors.append("Low risk profile - standard mission protocols apply")
 
         # If no specific risks, add a general assessment
-        if len(risk_factors) == 0:
+        if len([f for f in risk_factors if not f.startswith("Low risk") and not f.startswith("Moderate risk") and not f.startswith("High overall")]) == 0:
             risk_factors.append("No significant risk factors identified")
 
         # Generate recommendations
@@ -304,6 +385,16 @@ def predict_mission_risk(astronaut_data):
             recommendations.append("Provide additional training and mentorship")
         if duration_pred > 300:
             recommendations.append("Plan for extended mission support and regular check-ins")
+        if mission_complexity > 0.7:
+            recommendations.append("Enhanced mission planning and contingency protocols for high complexity")
+        if success_probability < 0.85:
+            recommendations.append("Additional risk mitigation measures and backup plans required")
+        if role in ['commander', 'pilot']:
+            recommendations.append("Leadership training and stress management protocols")
+        if launch_weather in ['Poor', 'Overcast']:
+            recommendations.append("Monitor weather conditions and consider launch delay if necessary")
+        if not military:
+            recommendations.append("Additional stress and emergency response training recommended")
         if risk_score > 0.6:
             recommendations.append("Implement enhanced safety protocols")
 
@@ -319,7 +410,17 @@ def predict_mission_risk(astronaut_data):
                 'age': age,
                 'nationality': astronaut_data['nationality'],
                 'missions': missions,
-                'space_time': space_time
+                'space_time': space_time,
+                'mission_type': input_data['Mission_Type'],
+                'role': input_data['Role'],
+                'launch_weather': input_data['Launch_Weather'],
+                'manufacturer': input_data['Manufacturer'],
+                'mission_complexity': input_data['Mission_Complexity'],
+                'success_probability': input_data['Success_Probability'],
+                'military': input_data['Military'],
+                'experience_level': input_data['Experience_Level'],
+                'age_group': input_data['Age_Group'],
+                'career_stage': input_data['Career_Stage']
             },
             'prediction': {
                 'duration_hours': round(duration_pred, 1),

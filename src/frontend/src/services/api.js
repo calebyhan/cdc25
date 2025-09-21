@@ -39,24 +39,6 @@ api.interceptors.response.use(
 
 // API service methods
 export const apiService = {
-  // GET / - Server status and endpoints
-  getServerStatus: async () => {
-    const response = await api.get('/');
-    return response.data;
-  },
-
-  // GET /api - API information
-  getApiInfo: async () => {
-    const response = await api.get('/api');
-    return response.data;
-  },
-
-  // GET /api/about - Project information
-  getAbout: async () => {
-    const response = await api.get('/api/about');
-    return response.data;
-  },
-
   // GET /api/astronauts - Test astronauts list
   getAstronauts: async () => {
     const response = await api.get('/api/astronauts');
@@ -75,21 +57,9 @@ export const apiService = {
     return response.data;
   },
 
-  // GET /api/health - Health check
-  getHealth: async () => {
-    const response = await api.get('/api/health');
-    return response.data;
-  },
-
   // GET /api/visualizations - Data for charts
   getVisualizations: async () => {
     const response = await api.get('/api/visualizations');
-    return response.data;
-  },
-
-  // GET /api/test-error - Test error handling
-  testError: async () => {
-    const response = await api.get('/api/test-error');
     return response.data;
   },
 };

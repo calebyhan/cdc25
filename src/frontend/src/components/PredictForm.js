@@ -50,6 +50,16 @@ const PredictForm = () => {
     nationality: 'USA',
     missions: 0,
     space_time: 0,
+    mission_type: 'ISS Expedition',
+    role: 'mission_specialist',
+    launch_weather: 'Clear',
+    manufacturer: 'SpaceX',
+    mission_complexity: 0.5,
+    success_probability: 0.9,
+    military: false,
+    experience_level: 'Intermediate',
+    age_group: 'Middle',
+    career_stage: 'Mid'
   });
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -157,7 +167,7 @@ const PredictForm = () => {
               <Tag colorScheme="green" variant="subtle">LIVE</Tag>
             </Flex>
             <Text fontSize="sm" color="gray.200" mt={2}>
-              Enter astronaut details to predict mission risk factors using our model
+              Enter astronaut and mission details to predict risk factors using our enhanced ML model
             </Text>
           </CardHeader>
           {predictInfo && (
@@ -295,6 +305,184 @@ const PredictForm = () => {
                     </NumberInput>
                   </FormControl>
 
+                  <Divider borderColor="whiteAlpha.400" />
+                  <Text color="cyan.300" fontWeight="bold" fontSize="md">Mission Details</Text>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Mission Type</FormLabel>
+                    <Select
+                      value={formData.mission_type}
+                      onChange={(e) => handleInputChange('mission_type', e.target.value)}
+                      bg="whiteAlpha.200"
+                      borderColor="whiteAlpha.500"
+                      color="white"
+                      _focus={{ borderColor: 'cyan.300' }}
+                      height="48px"
+                    >
+                      <option value="ISS Expedition">ISS Expedition</option>
+                      <option value="Space Shuttle">Space Shuttle</option>
+                      <option value="Commercial Crew">Commercial Crew</option>
+                      <option value="Lunar Mission">Lunar Mission</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Role</FormLabel>
+                    <Select
+                      value={formData.role}
+                      onChange={(e) => handleInputChange('role', e.target.value)}
+                      bg="whiteAlpha.200"
+                      borderColor="whiteAlpha.500"
+                      color="white"
+                      _focus={{ borderColor: 'cyan.300' }}
+                      height="48px"
+                    >
+                      <option value="commander">Commander</option>
+                      <option value="pilot">Pilot</option>
+                      <option value="mission_specialist">Mission Specialist</option>
+                      <option value="flight_engineer">Flight Engineer</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Launch Weather</FormLabel>
+                    <Select
+                      value={formData.launch_weather}
+                      onChange={(e) => handleInputChange('launch_weather', e.target.value)}
+                      bg="whiteAlpha.200"
+                      borderColor="whiteAlpha.500"
+                      color="white"
+                      _focus={{ borderColor: 'cyan.300' }}
+                      height="48px"
+                    >
+                      <option value="Clear">Clear</option>
+                      <option value="Partly Cloudy">Partly Cloudy</option>
+                      <option value="Overcast">Overcast</option>
+                      <option value="Poor">Poor</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Manufacturer</FormLabel>
+                    <Select
+                      value={formData.manufacturer}
+                      onChange={(e) => handleInputChange('manufacturer', e.target.value)}
+                      bg="whiteAlpha.200"
+                      borderColor="whiteAlpha.500"
+                      color="white"
+                      _focus={{ borderColor: 'cyan.300' }}
+                      height="48px"
+                    >
+                      <option value="SpaceX">SpaceX</option>
+                      <option value="Boeing">Boeing</option>
+                      <option value="Roscosmos">Roscosmos</option>
+                      <option value="Other">Other</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Mission Complexity (0.0 - 1.0)</FormLabel>
+                    <NumberInput
+                      value={formData.mission_complexity}
+                      onChange={(value) => handleInputChange('mission_complexity', parseFloat(value) || 0)}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      precision={1}
+                    >
+                      <NumberInputField bg="whiteAlpha.200" borderColor="whiteAlpha.500" color="white" _focus={{ borderColor: 'cyan.300' }} height="48px" />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Success Probability (0.0 - 1.0)</FormLabel>
+                    <NumberInput
+                      value={formData.success_probability}
+                      onChange={(value) => handleInputChange('success_probability', parseFloat(value) || 0)}
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      precision={2}
+                    >
+                      <NumberInputField bg="whiteAlpha.200" borderColor="whiteAlpha.500" color="white" _focus={{ borderColor: 'cyan.300' }} height="48px" />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Military Background</FormLabel>
+                    <Select
+                      value={formData.military.toString()}
+                      onChange={(e) => handleInputChange('military', e.target.value === 'true')}
+                      bg="whiteAlpha.200"
+                      borderColor="whiteAlpha.500"
+                      color="white"
+                      _focus={{ borderColor: 'cyan.300' }}
+                      height="48px"
+                    >
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Experience Level</FormLabel>
+                    <Select
+                      value={formData.experience_level}
+                      onChange={(e) => handleInputChange('experience_level', e.target.value)}
+                      bg="whiteAlpha.200"
+                      borderColor="whiteAlpha.500"
+                      color="white"
+                      _focus={{ borderColor: 'cyan.300' }}
+                      height="48px"
+                    >
+                      <option value="Junior">Junior</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Senior">Senior</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Age Group</FormLabel>
+                    <Select
+                      value={formData.age_group}
+                      onChange={(e) => handleInputChange('age_group', e.target.value)}
+                      bg="whiteAlpha.200"
+                      borderColor="whiteAlpha.500"
+                      color="white"
+                      _focus={{ borderColor: 'cyan.300' }}
+                      height="48px"
+                    >
+                      <option value="Young">Young</option>
+                      <option value="Middle">Middle</option>
+                      <option value="Senior">Senior</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="white" fontWeight="semibold">Career Stage</FormLabel>
+                    <Select
+                      value={formData.career_stage}
+                      onChange={(e) => handleInputChange('career_stage', e.target.value)}
+                      bg="whiteAlpha.200"
+                      borderColor="whiteAlpha.500"
+                      color="white"
+                      _focus={{ borderColor: 'cyan.300' }}
+                      height="48px"
+                    >
+                      <option value="Early">Early</option>
+                      <option value="Mid">Mid</option>
+                      <option value="Experienced">Experienced</option>
+                    </Select>
+                  </FormControl>
+
                   <Button
                     type="submit"
                     colorScheme="cyan"
@@ -387,6 +575,28 @@ const PredictForm = () => {
                       </Text>
                     </Box>
 
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium">Mission Details</Text>
+                      <Text fontSize="sm">
+                        {prediction.astronaut.mission_type} - {prediction.astronaut.role}
+                      </Text>
+                      <Text fontSize="xs" color="gray.300">
+                        Weather: {prediction.astronaut.launch_weather}, Manufacturer: {prediction.astronaut.manufacturer}
+                      </Text>
+                    </Box>
+
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium">Mission Parameters</Text>
+                      <Text fontSize="sm">
+                        Complexity: {(prediction.astronaut.mission_complexity * 100).toFixed(0)}%,
+                        Success Rate: {(prediction.astronaut.success_probability * 100).toFixed(0)}%
+                      </Text>
+                      <Text fontSize="xs" color="gray.300">
+                        Military: {prediction.astronaut.military ? 'Yes' : 'No'},
+                        Experience: {prediction.astronaut.experience_level}
+                      </Text>
+                    </Box>
+
                     {prediction.risk_factors && (
                       <Box>
                         <Text fontSize="sm" fontWeight="medium">Key Risk Factors</Text>
@@ -425,10 +635,10 @@ const PredictForm = () => {
           <CardBody>
             <VStack spacing={2}>
               <Text fontSize="sm" color="gray.100" textAlign="center">
-                How it works: The model analyzes age, experience, and mission history to estimate risk.
+                How it works: The enhanced model analyzes astronaut profile, mission complexity, environmental factors, and role responsibilities to estimate comprehensive risk.
               </Text>
               <Text fontSize="xs" color="gray.300" textAlign="center">
-                Scores are produced by an ensemble trained on historical astronaut data.
+                Scores are produced by an ensemble model trained on historical data with mission-specific parameters.
               </Text>
             </VStack>
           </CardBody>

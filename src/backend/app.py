@@ -103,12 +103,27 @@ def predict():
             'message': 'Send POST request with astronaut data for mission duration prediction',
             'model_info': 'Advanced ensemble ML model (Random Forest + Gradient Boosting + Neural Network + SVR)',
             'required_fields': ['name', 'age', 'nationality', 'missions', 'space_time'],
+            'optional_fields': [
+                'mission_type', 'role', 'launch_weather', 'manufacturer',
+                'mission_complexity', 'success_probability', 'military',
+                'experience_level', 'age_group', 'career_stage'
+            ],
             'example': {
                 'name': 'Test Astronaut',
                 'age': 42,
                 'nationality': 'USA',
                 'missions': 2,
-                'space_time': 150
+                'space_time': 150,
+                'mission_type': 'ISS Expedition',
+                'role': 'commander',
+                'launch_weather': 'Clear',
+                'manufacturer': 'SpaceX',
+                'mission_complexity': 0.6,
+                'success_probability': 0.95,
+                'military': True,
+                'experience_level': 'Senior',
+                'age_group': 'Middle',
+                'career_stage': 'Experienced'
             },
             'output': {
                 'prediction': 'Mission duration in hours and days',
