@@ -1,4 +1,4 @@
-# CDC25 - Astronaut Risk Assessment System
+# CDC25 - Astronaut Risk Assessment System - Social Sciences Track!
 
 ## Overview
 CDC25 is an astronaut risk assessment and mission duration prediction system built for the **Carolina Data Challenge 2025**.  
@@ -14,14 +14,13 @@ It combines **machine learning** with an **interactive web dashboard** to provid
 ## Installation
 
 ### Backend
-```bash
-cd src/backend
-python -m venv venv
-source venv/bin/activate   # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
+cd src/backend  
+python -m venv venv  
+source venv/bin/activate   # On Windows: venv\Scripts\activate  
+pip install -r requirements.txt  
+python app.py  
 
-## Frontend
+### Frontend
 cd src/frontend  
 npm install  
 npm start  
@@ -32,9 +31,15 @@ npm start
 - **Access App**: open http://localhost:3000 in your browser  
 
 
-## Team
+### Data Sources
+- Primary Dataset: data/Social_Science.csv (astronaut mission records)  
+- Synthetic Data: Fallback demonstration data  
+- Real-time Processing: Dynamic feature extraction and encoding  
+
+## Project Team
 **Team CDC25**  
 - **Caleb Han** — Full-stack development, ML integration  
 - **Ethan Tran** — Data analysis and model development  
 - **Erae Ko** — Frontend development and UI/UX  
 - **Jeffery Liu** — Backend architecture and API design  
+
