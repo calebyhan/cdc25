@@ -136,6 +136,27 @@ const PredictForm = () => {
     'Italy', 'UK', 'India', 'Australia', 'Other'
   ];
 
+  const fieldProps = {
+    bg: 'rgba(255,255,255,0.06)',
+    borderColor: 'whiteAlpha.300',
+    color: 'gray.100',
+    _placeholder: { color: 'whiteAlpha.700' },
+    _hover: { bg: 'rgba(255,255,255,0.09)', borderColor: 'whiteAlpha.400' },
+    _focus: {
+      bg: 'rgba(255,255,255,0.10)',
+      borderColor: 'cyan.300',
+      boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)',
+    },
+    height: '46px',
+    fontWeight: 'medium',
+    rounded: 'md',
+  };
+
+  const selectProps = {
+    ...fieldProps,
+    iconColor: 'whiteAlpha.700',
+  };
+
   return (
     <Box position="relative" minH="100%" bg="#0b1020" overflow="hidden">
       <Box position="absolute" inset="0" opacity={0.35}
@@ -164,7 +185,6 @@ const PredictForm = () => {
                   Astronaut Risk Assessment
                 </Heading>
               </HStack>
-              <Tag colorScheme="green" variant="subtle">LIVE</Tag>
             </Flex>
             <Text fontSize="sm" color="gray.100" mt={2}>
               Enter astronaut and mission details to predict risk factors using our enhanced ML model
@@ -211,14 +231,7 @@ const PredictForm = () => {
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       placeholder="Enter astronaut name"
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _placeholder={{ color: 'whiteAlpha.800' }}
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...fieldProps}
                     />
                   </FormControl>
 
@@ -235,7 +248,7 @@ const PredictForm = () => {
                       min={20}
                       max={70}
                     >
-                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
+                      <NumberInputField {...fieldProps} />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -253,13 +266,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.nationality}
                       onChange={(e) => handleInputChange('nationality', e.target.value)}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       {nationalities.map(nat => (
                         <option key={nat} value={nat}>{nat}</option>
@@ -280,7 +287,7 @@ const PredictForm = () => {
                       min={0}
                       max={20}
                     >
-                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
+                      <NumberInputField {...fieldProps} />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -301,7 +308,7 @@ const PredictForm = () => {
                       min={0}
                       max={1000}
                     >
-                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
+                      <NumberInputField {...fieldProps} />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -317,13 +324,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.mission_type}
                       onChange={(e) => handleInputChange('mission_type', e.target.value)}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       <option value="ISS Expedition">ISS Expedition</option>
                       <option value="Space Shuttle">Space Shuttle</option>
@@ -337,13 +338,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.role}
                       onChange={(e) => handleInputChange('role', e.target.value)}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       <option value="commander">Commander</option>
                       <option value="pilot">Pilot</option>
@@ -357,13 +352,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.launch_weather}
                       onChange={(e) => handleInputChange('launch_weather', e.target.value)}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       <option value="Clear">Clear</option>
                       <option value="Partly Cloudy">Partly Cloudy</option>
@@ -377,13 +366,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.manufacturer}
                       onChange={(e) => handleInputChange('manufacturer', e.target.value)}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       <option value="SpaceX">SpaceX</option>
                       <option value="Boeing">Boeing</option>
@@ -402,7 +385,7 @@ const PredictForm = () => {
                       step={0.1}
                       precision={1}
                     >
-                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
+                      <NumberInputField {...fieldProps} />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -420,7 +403,7 @@ const PredictForm = () => {
                       step={0.01}
                       precision={2}
                     >
-                      <NumberInputField bg="whiteAlpha.250" borderColor="whiteAlpha.600" color="white" _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }} _hover={{ borderColor: 'whiteAlpha.700' }} height="48px" fontWeight="medium" />
+                      <NumberInputField {...fieldProps} />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -433,13 +416,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.military.toString()}
                       onChange={(e) => handleInputChange('military', e.target.value === 'true')}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       <option value="false">No</option>
                       <option value="true">Yes</option>
@@ -451,13 +428,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.experience_level}
                       onChange={(e) => handleInputChange('experience_level', e.target.value)}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       <option value="Junior">Junior</option>
                       <option value="Intermediate">Intermediate</option>
@@ -470,13 +441,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.age_group}
                       onChange={(e) => handleInputChange('age_group', e.target.value)}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       <option value="Young">Young</option>
                       <option value="Middle">Middle</option>
@@ -489,13 +454,7 @@ const PredictForm = () => {
                     <Select
                       value={formData.career_stage}
                       onChange={(e) => handleInputChange('career_stage', e.target.value)}
-                      bg="whiteAlpha.250"
-                      borderColor="whiteAlpha.600"
-                      color="white"
-                      _focus={{ borderColor: 'cyan.300', boxShadow: '0 0 0 2px var(--chakra-colors-cyan-300)', bg: 'whiteAlpha.300' }}
-                      _hover={{ borderColor: 'whiteAlpha.700' }}
-                      height="48px"
-                      fontWeight="medium"
+                      {...selectProps}
                     >
                       <option value="Early">Early</option>
                       <option value="Mid">Mid</option>
@@ -669,4 +628,3 @@ const PredictForm = () => {
 };
 
 export default PredictForm;
-

@@ -14,7 +14,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 import warnings
 warnings.filterwarnings('ignore')
 
-# Global variables for model state
+
 MODEL_STATE = {
     'is_trained': False,
     'model': None,
@@ -30,7 +30,7 @@ MODEL_STATE = {
 def load_and_prepare_data():
     """Load and prepare the astronaut mission data for training"""
     try:
-        # Load the Social Science dataset
+
         data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'Social_Science.csv')
 
         if not os.path.exists(data_path):
@@ -39,15 +39,15 @@ def load_and_prepare_data():
 
         df = pd.read_csv(data_path)
 
-        # Clean and prepare the data
+
         df_clean = df.dropna(subset=['Name', 'Year', 'Mission'])
 
-        # Feature engineering
+
         df_clean['Age'] = df_clean.get('Age', np.random.randint(25, 60, len(df_clean)))
         df_clean['Missions'] = df_clean.groupby('Name').cumcount() + 1
         df_clean['Space_time'] = df_clean.get('Space_time', np.random.randint(50, 500, len(df_clean)))
 
-        # Create mission duration target (hours)
+
         np.random.seed(42)
         base_duration = np.random.normal(200, 50, len(df_clean))
         age_factor = (df_clean['Age'] - 35) * -2
@@ -56,7 +56,7 @@ def load_and_prepare_data():
 
         df_clean['Mission_Duration_Hours'] = np.maximum(
             base_duration + age_factor + experience_factor + space_time_factor,
-            24  # Minimum 24 hours
+            24
         )
 
         return df_clean
@@ -76,7 +76,7 @@ def create_synthetic_data():
     missions = np.random.randint(1, 8, n_samples)
     space_time = np.random.randint(50, 1000, n_samples)
 
-    # Generate new mission parameters
+
     mission_types = np.random.choice(['ISS Expedition', 'Space Shuttle', 'Commercial Crew', 'Lunar Mission'], n_samples)
     roles = np.random.choice(['commander', 'pilot', 'mission_specialist', 'flight_engineer'], n_samples)
     launch_weather = np.random.choice(['Clear', 'Partly Cloudy', 'Overcast', 'Poor'], n_samples)
@@ -85,18 +85,18 @@ def create_synthetic_data():
     success_probability = np.random.uniform(0.7, 0.99, n_samples)
     military = np.random.choice([True, False], n_samples)
 
-    # Derive experience levels from missions
+
     experience_levels = ['Junior' if m < 2 else 'Senior' if m > 4 else 'Intermediate' for m in missions]
     age_groups = ['Young' if a < 35 else 'Senior' if a > 50 else 'Middle' for a in ages]
     career_stages = ['Early' if m < 3 else 'Experienced' if m > 5 else 'Mid' for m in missions]
 
-    # Generate realistic mission durations with new factors
+
     base_duration = np.random.normal(200, 50, n_samples)
     age_factor = (ages - 35) * -2
     experience_factor = missions * 15
     space_time_factor = space_time * 0.3
 
-    # New complexity and role factors
+
     complexity_factor = mission_complexity * 100
     role_factor = [20 if r == 'commander' else 10 if r == 'pilot' else 0 for r in roles]
     weather_factor = [10 if w == 'Poor' else 5 if w == 'Overcast' else 0 for w in launch_weather]
@@ -130,28 +130,27 @@ def prepare_features(df):
     """Prepare features for machine learning"""
     features_df = df.copy()
 
-    # Numerical features
+
     numerical_features = ['Age', 'Missions', 'Space_time', 'Mission_Complexity', 'Success_Probability']
 
-    # Boolean features (convert to numeric)
+
     boolean_features = ['Military']
     for bool_feature in boolean_features:
         if bool_feature in features_df.columns:
             features_df[f'{bool_feature}_numeric'] = features_df[bool_feature].astype(int)
             numerical_features.append(f'{bool_feature}_numeric')
 
-    # Categorical features
     categorical_features = ['Nationality', 'Mission_Type', 'Role', 'Launch_Weather',
                            'Manufacturer', 'Experience_Level', 'Age_Group', 'Career_Stage']
 
-    # Handle categorical encoding
+
     for cat_feature in categorical_features:
         if cat_feature in features_df.columns:
             le = LabelEncoder()
             features_df[f'{cat_feature}_encoded'] = le.fit_transform(features_df[cat_feature].astype(str))
             MODEL_STATE['label_encoders'][cat_feature] = le
 
-    # Select final features
+
     available_numerical = [f for f in numerical_features if f in features_df.columns]
     available_categorical = [f'{cat}_encoded' for cat in categorical_features if cat in features_df.columns]
     feature_columns = available_numerical + available_categorical
@@ -171,29 +170,23 @@ def train_model():
 
         print(f"Dataset shape: {df.shape}")
 
-        # Prepare features
         X, y = prepare_features(df)
 
         print(f"Features: {MODEL_STATE['feature_names']}")
 
-        # Split the data
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        # Scale features
         scaler = StandardScaler()
         X_train_scaled = scaler.fit_transform(X_train)
         X_test_scaled = scaler.transform(X_test)
 
-        # Create ensemble model
         print("Training ensemble model...")
 
-        # Base models
         rf = RandomForestRegressor(n_estimators=100, random_state=42, max_depth=10)
         gb = GradientBoostingRegressor(n_estimators=100, random_state=42, max_depth=6)
         mlp = MLPRegressor(hidden_layer_sizes=(100, 50), random_state=42, max_iter=500)
         svr = SVR(kernel='rbf', C=100, gamma='scale')
 
-        # Stacking ensemble
         base_models = [
             ('rf', rf),
             ('gb', gb),
@@ -201,20 +194,16 @@ def train_model():
             ('svr', svr)
         ]
 
-        # Final estimator
         final_estimator = Ridge(alpha=1.0)
 
-        # Create stacking regressor
         stacking_model = StackingRegressor(
             estimators=base_models,
             final_estimator=final_estimator,
             cv=5
         )
 
-        # Train the model
         stacking_model.fit(X_train_scaled, y_train)
 
-        # Evaluate the model
         y_pred_train = stacking_model.predict(X_train_scaled)
         y_pred_test = stacking_model.predict(X_test_scaled)
 
@@ -228,7 +217,6 @@ def train_model():
         print(f"Training RMSE: {train_rmse:.2f} hours")
         print(f"Testing RMSE: {test_rmse:.2f} hours")
 
-        # Update model state
         MODEL_STATE.update({
             'is_trained': True,
             'model': stacking_model,
@@ -255,13 +243,11 @@ def train_model():
 def predict_mission_risk(astronaut_data):
     """Make risk prediction for an astronaut"""
     try:
-        # Ensure model is trained
         if not MODEL_STATE['is_trained']:
             print("Training model...")
             if not train_model():
                 return {'error': 'Model training failed'}
 
-        # Prepare input data with default values for optional fields
         input_data = {
             'Age': astronaut_data['age'],
             'Missions': astronaut_data['missions'],
@@ -281,53 +267,42 @@ def predict_mission_risk(astronaut_data):
 
         input_df = pd.DataFrame([input_data])
 
-        # Handle boolean features
         if 'Military' in input_df.columns:
             input_df['Military_numeric'] = input_df['Military'].astype(int)
 
-        # Encode categorical features
         for cat_feature, encoder in MODEL_STATE['label_encoders'].items():
             if cat_feature in input_df.columns:
                 try:
                     input_df[f'{cat_feature}_encoded'] = encoder.transform(input_df[cat_feature].astype(str))
                 except ValueError:
-                    # Handle unknown categories
                     input_df[f'{cat_feature}_encoded'] = 0
 
-        # Select features in the same order as training
         X_input = input_df[MODEL_STATE['feature_names']]
 
-        # Scale features
         X_input_scaled = MODEL_STATE['scaler'].transform(X_input)
 
-        # Make prediction
         duration_pred = MODEL_STATE['model'].predict(X_input_scaled)[0]
 
-        # Calculate confidence interval (approximate)
         base_uncertainty = MODEL_STATE['training_score']['rmse']
         confidence_interval = [
             max(24, duration_pred - 1.96 * base_uncertainty),
             duration_pred + 1.96 * base_uncertainty
         ]
 
-        # Risk assessment based on duration and astronaut factors
         age = astronaut_data['age']
         missions = astronaut_data['missions']
         space_time = astronaut_data['space_time']
 
-        # Get mission parameters for enhanced risk assessment
         mission_complexity = input_data['Mission_Complexity']
         success_probability = input_data['Success_Probability']
         role = input_data['Role']
         launch_weather = input_data['Launch_Weather']
         military = input_data['Military']
 
-        # Calculate risk factors
         age_risk = max(0, (age - 50) * 0.02) if age > 50 else 0
         inexperience_risk = max(0, (3 - missions) * 0.1) if missions < 3 else 0
         long_duration_risk = max(0, (duration_pred - 300) * 0.001) if duration_pred > 300 else 0
 
-        # New mission-specific risk factors
         complexity_risk = max(0, (mission_complexity - 0.7) * 0.3) if mission_complexity > 0.7 else 0
         probability_risk = max(0, (0.9 - success_probability) * 0.5) if success_probability < 0.9 else 0
         role_risk = 0.1 if role == 'commander' else 0.05 if role == 'pilot' else 0
@@ -338,7 +313,6 @@ def predict_mission_risk(astronaut_data):
                      complexity_risk + probability_risk + role_risk + weather_risk + military_bonus)
         risk_score = min(1.0, max(0.05, total_risk))
 
-        # Risk level classification
         if risk_score < 0.3:
             risk_level = 'Low'
         elif risk_score < 0.6:
@@ -346,7 +320,6 @@ def predict_mission_risk(astronaut_data):
         else:
             risk_level = 'High'
 
-        # Generate risk factors as an array of descriptive strings for frontend
         risk_factors = []
         if age_risk > 0:
             risk_factors.append(f"Age-related risk: {age} years old (score: {round(age_risk, 3)})")
@@ -365,7 +338,6 @@ def predict_mission_risk(astronaut_data):
         if military_bonus < 0:
             risk_factors.append(f"Military experience advantage (score: {round(military_bonus, 3)})")
 
-        # Add general risk factors based on score
         if risk_score >= 0.6:
             risk_factors.append("High overall risk profile - requires enhanced monitoring")
         elif risk_score >= 0.4:
@@ -373,11 +345,9 @@ def predict_mission_risk(astronaut_data):
         else:
             risk_factors.append("Low risk profile - standard mission protocols apply")
 
-        # If no specific risks, add a general assessment
         if len([f for f in risk_factors if not f.startswith("Low risk") and not f.startswith("Moderate risk") and not f.startswith("High overall")]) == 0:
             risk_factors.append("No significant risk factors identified")
 
-        # Generate recommendations
         recommendations = []
         if age > 50:
             recommendations.append("Consider additional health monitoring for older astronaut")
@@ -401,7 +371,6 @@ def predict_mission_risk(astronaut_data):
         if not recommendations:
             recommendations.append("Standard mission protocols apply")
 
-        # Update prediction count
         MODEL_STATE['prediction_count'] += 1
 
         return {
@@ -462,23 +431,18 @@ def get_model_status():
 def generate_visualization_data():
     """Generate data for visualizations"""
     try:
-        # Load data
         df = load_and_prepare_data()
 
-        # Age distribution
         age_bins = pd.cut(df['Age'], bins=[0, 30, 40, 50, 100], labels=['Under 30', '30-39', '40-49', '50+'])
         age_dist = age_bins.value_counts().to_dict()
 
-        # Nationality distribution
         nationality_dist = df['Nationality'].value_counts().to_dict()
 
-        # Risk vs Duration analysis
         df['Risk_Category'] = pd.cut(df['Mission_Duration_Hours'],
                                    bins=[0, 150, 250, 500],
                                    labels=['Low', 'Medium', 'High'])
         risk_dist = df['Risk_Category'].value_counts().to_dict()
 
-        # Mission experience analysis
         experience_stats = df.groupby('Missions').agg({
             'Mission_Duration_Hours': 'mean',
             'Age': 'mean'
@@ -513,7 +477,6 @@ def generate_visualization_data():
             'fallback': True
         }
 
-# Initialize model on import
 if __name__ == "__main__":
     print("Training model...")
     train_model()

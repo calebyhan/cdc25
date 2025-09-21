@@ -5,11 +5,9 @@ import traceback
 
 from models import predict_mission_risk, get_model_status, generate_visualization_data
 
-# Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 
-# Test data
 TEST_ASTRONAUTS = [
     {
         'id': 1,
@@ -30,7 +28,7 @@ TEST_ASTRONAUTS = [
 @app.route('/')
 def home():
     return jsonify({
-        'message': '🚀 CDC25 Server is Running!',
+        'message': 'CDC25 Server is Running!',
         'test_endpoints': {
             'GET /': 'This message',
             'GET /api': 'API info',
@@ -42,7 +40,6 @@ def home():
         'timestamp': datetime.now().isoformat()
     })
 
-# API info
 @app.route('/api')
 def api_info():
     model_status = get_model_status()
@@ -59,7 +56,6 @@ def api_info():
         }
     })
 
-# Update the about endpoint in app.py
 @app.route('/api/about')
 def about():
     return jsonify({
@@ -83,7 +79,6 @@ def about():
         }
     })
 
-# Get test astronauts
 @app.route('/api/astronauts')
 def get_astronauts():
     return jsonify({
@@ -91,7 +86,6 @@ def get_astronauts():
         'count': len(TEST_ASTRONAUTS)
     })
 
-# Enhanced prediction endpoint with real ML model
 @app.route('/api/predict', methods=['GET', 'POST'])
 def predict():
     if request.method == 'GET':
@@ -128,11 +122,8 @@ def predict():
             }
         })
 
-    # POST request - Real ML prediction
     try:
         data = request.json or {}
-
-        # Validate required fields
         required_fields = ['name', 'age', 'nationality', 'missions', 'space_time']
         missing_fields = [field for field in required_fields if field not in data]
 
@@ -143,23 +134,20 @@ def predict():
                 'required_fields': required_fields
             }), 400
 
-        # Make prediction using the ML model
         prediction_result = predict_mission_risk(data)
 
-        # Check for prediction errors
         if 'error' in prediction_result:
             return jsonify({
                 'error': 'Prediction failed',
                 'details': prediction_result['error']
             }), 500
 
-        # Return successful prediction
         return jsonify({
             'status': 'success',
             'astronaut': prediction_result['astronaut'],
             'risk_score': prediction_result['risk_assessment']['risk_score'],
             'risk_level': prediction_result['risk_assessment']['risk_level'],
-            'risk_factors': prediction_result['risk_factors'],  # Fixed: now at top level
+            'risk_factors': prediction_result['risk_factors'],
             'predicted_duration_hours': prediction_result['prediction']['duration_hours'],
             'predicted_duration_days': prediction_result['prediction']['duration_days'],
             'confidence_interval_hours': prediction_result['prediction']['confidence_interval_hours'],
@@ -169,7 +157,6 @@ def predict():
         })
 
     except Exception as e:
-        # Detailed error logging
         error_details = traceback.format_exc()
         print(f"Prediction error: {error_details}")
 
@@ -179,7 +166,6 @@ def predict():
             'type': 'prediction_error'
         }), 500
 
-# Model status endpoint
 @app.route('/api/model/status')
 def model_status():
     try:
@@ -195,7 +181,6 @@ def model_status():
             'details': str(e)
         }), 500
 
-# Health check
 @app.route('/api/health')
 def health():
     try:
@@ -223,18 +208,12 @@ def health():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-
-# Add this endpoint after the health check endpoint
-
-# Data visualization endpoint with real ML-generated data
 @app.route('/api/visualizations')
 def get_visualizations():
     try:
-        # Get ML-generated visualization data
         viz_data = generate_visualization_data()
         return jsonify(viz_data)
     except Exception as e:
-        # Fallback to static data if ML data generation fails
         print(f"Visualization error: {e}")
         return jsonify({
             'error': 'Using fallback data',
@@ -261,39 +240,35 @@ def get_visualizations():
             }
         })
 
-# Test error handling
 @app.route('/api/test-error')
 def test_error():
     raise Exception("This is a test error!")
 
-# 404 handler
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({'error': '404 - Endpoint not found'}), 404
 
-# Error handler
 @app.errorhandler(500)
 def server_error(e):
     return jsonify({'error': '500 - Internal server error', 'details': str(e)}), 500
 
 if __name__ == '__main__':
-    print("🚀 Starting CDC25 Server...")
-    print("📍 Server running at http://localhost:8000")
-    print("📍 Test the API at http://localhost:8000/api")
+    print("Starting CDC25 Server...")
+    print("Server running at http://localhost:8000")
+    print("Test the API at http://localhost:8000/api")
 
-    # Initialize ML model
     try:
-        print("🤖 Initializing ML model...")
+        print("Initializing ML model...")
         model_info = get_model_status()
         if model_info.get('is_trained'):
-            print(f"✅ ML Model v{model_info.get('model_version')} ready!")
-            print(f"📊 Training score: R² = {model_info.get('training_score', {}).get('r2_score', 'N/A')}")
+            print(f"ML Model v{model_info.get('model_version')} ready!")
+            print(f"Training score: R² = {model_info.get('training_score', {}).get('r2_score', 'N/A')}")
         else:
-            print("⚠️ ML Model not trained")
+            print("ML Model not trained")
     except Exception as e:
-        print(f"❌ ML Model initialization failed: {e}")
+        print(f"ML Model initialization failed: {e}")
 
-    print("🎯 Key endpoints:")
+    print("Key endpoints:")
     print("   • POST /api/predict - Mission duration prediction")
     print("   • GET /api/model/status - ML model information")
     print("   • GET /api/visualizations - Data analytics")
